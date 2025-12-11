@@ -1,766 +1,159 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Strategi Algoritma - EduChat</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <style>
-        :root {
-            --primary: #B8352E;
-            --primary-dark: #8F2320;
-            --primary-soft: #FDF2F2;
-            --bg-page: #F5F7FB;
-            --text-main: #111827;
-            --text-muted: #6B7280;
-            --border-soft: #E5E7EB;
-            --card-bg: #FFFFFF;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        body {
-            min-height: 100vh;
-            background-color: var(--bg-page);
-            color: var(--text-main);
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Topbar */
-        .topbar {
-            height: 64px;
-            background-color: #FFFFFF;
-            border-bottom: 1px solid #F3F4F6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .topbar-icon {
-            width: 34px;
-            height: 34px;
-            border-radius: 999px;
-            border: 1.5px solid #111827;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-        }
-
-        /* Layout utama */
-        .page {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            gap: 14px;
-        }
-
-        .breadcrumbs {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        .breadcrumbs a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        .breadcrumbs span {
-            margin: 0 6px;
-        }
-
-        .header-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        .header-left {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .eyebrow {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.14em;
-            color: var(--primary);
-        }
-
-        .course-title-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .course-title {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .course-badge {
-            font-size: 11px;
-            padding: 4px 10px;
-            border-radius: 999px;
-            background-color: var(--primary-soft);
-            color: var(--primary);
-        }
-
-        .clo-title {
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .toggle-sidebar-btn {
-            border-radius: 999px;
-            border: 1px solid var(--border-soft);
-            background-color: #FFFFFF;
-            font-size: 11px;
-            padding: 6px 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            color: var(--text-muted);
-        }
-
-        .toggle-sidebar-btn span.icon {
-            width: 18px;
-            height: 18px;
-            border-radius: 999px;
-            background-color: var(--primary-soft);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            color: var(--primary);
-        }
-
-        .header-pill {
-            font-size: 11px;
-            padding: 4px 10px;
-            border-radius: 999px;
-            background-color: #ECFDF3;
-            color: #166534;
-        }
-
-        /* Konten utama */
-        .content {
-            flex: 1;
-            display: flex;
-            gap: 16px;
-            min-height: 0;
-        }
-
-        .chat-column {
-            flex: 1.6;
-            background-color: #FFFFFF;
-            border-radius: 24px;
-            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .chat-header {
-            padding: 14px 18px;
-            border-bottom: 1px solid #F3F4F6;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        .chat-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .chat-title {
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .chat-subtitle {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        .chat-status {
-            font-size: 11px;
-            padding: 3px 9px;
-            border-radius: 999px;
-            background-color: #EFF6FF;
-            color: #1D4ED8;
-        }
-
-        .chat-body {
-            flex: 1;
-            padding: 14px 18px;
-            overflow-y: auto;
-            background-image: radial-gradient(circle at 0 0, rgba(184,53,46,0.035) 0, transparent 40%),
-                              radial-gradient(circle at 100% 100%, rgba(184,53,46,0.035) 0, transparent 40%);
-        }
-
-        .message-group {
-            margin-bottom: 14px;
-        }
-
-        .msg-meta {
-            font-size: 10px;
-            color: #9CA3AF;
-            margin-bottom: 4px;
-        }
-
-        .msg-row {
-            display: flex;
-            align-items: flex-end;
-            gap: 6px;
-        }
-
-        .msg-avatar {
-            width: 26px;
-            height: 26px;
-            border-radius: 999px;
-            background-color: var(--primary-soft);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            flex-shrink: 0;
-        }
-
-        .msg-avatar-user {
-            background-color: #E5E7EB;
-        }
-
-        .msg-avatar span {
-            color: var(--primary);
-        }
-
-        .msg-bubble {
-            max-width: 80%;
-            border-radius: 16px;
-            padding: 9px 11px;
-            font-size: 12px;
-            line-height: 1.4;
-        }
-
-        .msg-bubble-bot {
-            background-color: #F9FAFB;
-            border: 1px solid #E5E7EB;
-        }
-
-        .msg-bubble-user {
-            background-color: var(--primary);
-            color: #FFFFFF;
-            margin-left: auto;
-            border-bottom-right-radius: 4px;
-        }
-
-        .msg-row.user {
-            justify-content: flex-end;
-        }
-
-        .msg-row.user .msg-avatar {
-            order: 2;
-        }
-
-        .msg-row.user .msg-bubble {
-            order: 1;
-        }
-
-        .typing-indicator {
-            display: inline-flex;
-            gap: 3px;
-        }
-
-        .typing-dot {
-            width: 4px;
-            height: 4px;
-            border-radius: 999px;
-            background-color: #9CA3AF;
-            opacity: 0.8;
-        }
-
-        .chat-footer {
-            border-top: 1px solid #F3F4F6;
-            padding: 10px 12px;
-            background-color: #FFFFFF;
-        }
-
-        .input-wrapper {
-            display: flex;
-            align-items: flex-end;
-            gap: 8px;
-        }
-
-        .input-area {
-            flex: 1;
-            background-color: #F9FAFB;
-            border-radius: 18px;
-            border: 1px solid #E5E7EB;
-            padding: 8px 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .input-area textarea {
-            border: none;
-            resize: none;
-            background: transparent;
-            font-size: 12px;
-            outline: none;
-            max-height: 80px;
-        }
-
-        .input-helper {
-            font-size: 10px;
-            color: #9CA3AF;
-            display: flex;
-            justify-content: space-between;
-            gap: 6px;
-        }
-
-        .send-btn {
-            border-radius: 999px;
-            border: none;
-            background-color: var(--primary);
-            color: #FFFFFF;
-            font-size: 13px;
-            padding: 8px 13px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            flex-shrink: 0;
-        }
-
-        .send-btn span.icon {
-            font-size: 12px;
-        }
-
-        /* Sidebar kanan (materi) */
-        .sidebar-right {
-            width: 280px;
-            background-color: #FFFFFF;
-            border-radius: 24px;
-            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
-            padding: 16px 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .sidebar-right.hidden {
-            display: none;
-        }
-
-        .sr-tag {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.14em;
-            color: var(--primary);
-        }
-
-        .sr-title {
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .sr-desc {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        .sr-section-title {
-            font-size: 12px;
-            font-weight: 600;
-            margin-top: 8px;
-        }
-
-        .sr-list {
-            margin-top: 4px;
-            border-radius: 14px;
-            background-color: #F9FAFB;
-            padding: 8px 9px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .sr-item {
-            border-radius: 12px;
-            padding: 7px 8px;
-            background-color: #FFFFFF;
-            border: 1px solid #E5E7EB;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .sr-item-title {
-            font-size: 11px;
-            font-weight: 500;
-        }
-
-        .sr-item-sub {
-            font-size: 10px;
-            color: var(--text-muted);
-        }
-
-        .sr-chip-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            margin-top: 6px;
-        }
-
-        .sr-chip {
-            font-size: 10px;
-            padding: 3px 7px;
-            border-radius: 999px;
-            background-color: var(--primary-soft);
-            color: var(--primary-dark);
-        }
-
-        .sr-note {
-            font-size: 10px;
-            color: #9CA3AF;
-        }
-
-        @media (max-width: 1024px) {
-            .content {
-                flex-direction: column;
-            }
-
-            .sidebar-right {
-                width: 100%;
-                order: -1;
-            }
-
-            .header-row {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-        }
-
-        @media (max-width: 640px) {
-            .page {
-                padding: 16px;
-            }
-
-            .chat-column,
-            .sidebar-right {
-                border-radius: 20px;
-            }
-
-            .chat-header {
-                padding: 10px 12px;
-            }
-
-            .chat-body {
-                padding: 10px 12px;
-            }
-        }
-    </style>
-</head>
-<body>
-    @php
-        // Fallback nama kalau route hanya kirim id
-        $courseName = 'Strategi Algoritma';
-        $cloName = 'CLO 1 · Brute Force & Divide and Conquer';
-        $isHistory = isset($session);
-    @endphp
-
-    {{-- Topbar --}}
-    <header class="topbar">
-        <div class="topbar-icon">
-            &lt;/&gt;
-        </div>
-    </header>
-
-    <main class="page">
-        {{-- Breadcrumbs --}}
-        <nav class="breadcrumbs">
-            <a href="{{ route('dashboard') }}">Dashboard</a>
-            <span>/</span>
-            <a href="{{ route('course.show', $course ?? 1) }}">Strategi Algoritma</a>
-            <span>/</span>
-            <span>{{ $isHistory ? 'Riwayat Chat' : 'CLO 1' }}</span>
-        </nav>
-
-        {{-- Header --}}
-        <div class="header-row">
-            <div class="header-left">
-                <span class="eyebrow">{{ $isHistory ? 'Riwayat percakapan' : 'CLO Strategi Algoritma' }}</span>
-
-                <div class="course-title-row">
-                    <h1 class="course-title">{{ $courseName }}</h1>
-                    <span class="course-badge">{{ $cloName }}</span>
-                </div>
-
-                <p class="clo-title">
-                    Tanyakan apa saja tentang materi brute force dan divide & conquer, dari konsep dasar sampai contoh soal.
-                </p>
-            </div>
-
-            <div class="header-right">
-                <button type="button" class="toggle-sidebar-btn" id="toggleSidebarBtn">
-                    <span class="icon">≡</span>
-                    Materi & contoh soal
+{{-- resources/views/student/chat.blade.php --}}
+@extends('student.layout')
+
+@section('title', 'Percakapan Pembelajaran - EduChat')
+
+@section('content')
+@php
+    $courseNames = [
+        1 => 'Algoritma Pemrograman',
+        2 => 'Algoritma Pemrograman (Lanjutan)',
+        3 => 'Analisis Kompleksitas Algoritma',
+        4 => 'Strategi Algoritma',
+    ];
+
+    $courseName = $courseNames[$course] ?? 'Mata Kuliah';
+@endphp
+
+<div class="flex gap-6 h-[calc(100vh-5rem)]">
+
+    {{-- ====== LEFT: CHAT AREA ====== --}}
+    <div class="flex flex-col flex-1">
+
+        {{-- HEADER ATAS --}}
+        <header
+            class="flex items-center justify-between bg-white dark:bg-slate-900 rounded-3xl px-6 py-4 mb-4 shadow-sm border border-slate-100 dark:border-slate-800">
+            <div class="flex items-center gap-3">
+                {{-- icon back (dekorasi aja) --}}
+                <button class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800">
+                    <span class="text-lg">&lt;</span>
                 </button>
 
-                <div class="header-pill">
-                    Mode {{ $isHistory ? 'Riwayat' : 'Belajar' }}
-                </div>
-            </div>
-        </div>
-
-        {{-- Konten --}}
-        <section class="content">
-            {{-- Kolom chat --}}
-            <section class="chat-column">
-                <header class="chat-header">
-                    <div class="chat-info">
-                        <div class="chat-title">
-                            {{ $isHistory ? 'Percakapan sebelumnya' : 'Tanyakan apa yang belum kamu pahami' }}
-                        </div>
-                        <div class="chat-subtitle">
-                            Gunakan bahasa santai. Kamu bisa kirim potongan soal, kode, atau minta dijelasin pelan-pelan.
-                        </div>
+                <div class="flex flex-col">
+                    <div class="flex items-center gap-2">
+                        <span class="text-[#B8352E] text-lg">&lt;/&gt;</span>
+                        <p class="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                            {{ $courseName }}
+                        </p>
                     </div>
-
-                    <div class="chat-status">
-                        🎓 EduChat • Strategi Algoritma
-                    </div>
-                </header>
-
-                <div class="chat-body" id="chatBody">
-                    {{-- Dummy messages --}}
-                </div>
-
-                <footer class="chat-footer">
-                    <form id="chatForm">
-                        <div class="input-wrapper">
-                            <div class="input-area">
-                                <textarea
-                                    id="chatInput"
-                                    rows="1"
-                                    placeholder="Tanyakan contoh soal brute force, minta penjelasan step-by-step, atau kirim kode yang ingin kamu diskusikan..."
-                                ></textarea>
-                                <div class="input-helper">
-                                    <span>Tips: makin spesifik pertanyaannya, makin jelas jawabannya ✨</span>
-                                    <span>Enter untuk kirim · Shift+Enter baris baru</span>
-                                </div>
-                            </div>
-
-                            <button type="submit" class="send-btn">
-                                <span class="icon">➤</span>
-                                Kirim
-                            </button>
-                        </div>
-                    </form>
-                </footer>
-            </section>
-
-            {{-- Sidebar kanan: materi --}}
-            <aside class="sidebar-right" id="sidebarRight">
-                <div>
-                    <div class="sr-tag">Materi CLO 1</div>
-                    <div class="sr-title">Brute Force & Divide and Conquer</div>
-                    <p class="sr-desc">
-                        Gunakan panel ini untuk membuka materi ringkas dan contoh soal yang selaras dengan percakapanmu.
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        CLO {{ $clo }}
                     </p>
                 </div>
+            </div>
 
-                <div>
-                    <div class="sr-section-title">Ringkasan materi</div>
-                    <div class="sr-list">
-                        <div class="sr-item">
-                            <div class="sr-item-title">Konsep Brute Force</div>
-                            <div class="sr-item-sub">
-                                Menyelesaikan masalah dengan mencoba semua kemungkinan secara sistematis.
-                            </div>
-                        </div>
-                        <div class="sr-item">
-                            <div class="sr-item-title">Divide and Conquer</div>
-                            <div class="sr-item-sub">
-                                Membagi masalah menjadi sub-masalah lebih kecil, menyelesaikan, lalu menggabungkannya.
-                            </div>
-                        </div>
+            {{-- icon buku: TOGGLE RIGHT SIDEBAR --}}
+            <button
+                id="infoToggleBtn"
+                class="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800"
+                type="button">
+                <span class="text-sm">📘</span>
+            </button>
+        </header>
+
+        {{-- CHAT AREA --}}
+        <section class="flex-1 bg-transparent rounded-3xl flex flex-col">
+
+            {{-- LIST PESAN --}}
+            <div class="flex-1 overflow-y-auto pr-2 space-y-4 pt-2">
+
+                {{-- BOT MESSAGE 1 --}}
+                <div class="flex items-start gap-3">
+                    <div class="w-9 h-9 rounded-full bg-[#B8352E] flex items-center justify-center text-white text-sm">
+                        🤖
+                    </div>
+                    <div
+                        class="max-w-xl rounded-2xl bg-white dark:bg-slate-900 shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-100">
+                        <p><span class="font-semibold">EduChat:</span> Halo Aqila! Ada yang bisa saya bantu?</p>
                     </div>
                 </div>
 
-                <div>
-                    <div class="sr-section-title">Contoh soal</div>
-                    <div class="sr-list">
-                        <div class="sr-item">
-                            <div class="sr-item-title">Pencarian maksimum (Brute Force)</div>
-                            <div class="sr-item-sub">
-                                Diberikan array A berisi n bilangan, cari nilai maksimum menggunakan brute force.
-                            </div>
-                        </div>
-                        <div class="sr-item">
-                            <div class="sr-item-title">Pencarian elemen pada array terurut (Binary Search)</div>
-                            <div class="sr-item-sub">
-                                Contoh penerapan divide and conquer pada array terurut.
-                            </div>
-                        </div>
+                {{-- BOT MESSAGE 2 --}}
+                <div class="flex items-start gap-3">
+                    <div class="w-9 h-9 rounded-full bg-[#B8352E] flex items-center justify-center text-white text-sm">
+                        🤖
+                    </div>
+                    <div
+                        class="max-w-xl rounded-2xl bg-white dark:bg-slate-900 shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-100">
+                        <p><span class="font-semibold">EduChat:</span> Kamu bisa bertanya seputar materi pada CLO {{ $clo }},
+                            misalnya konsep dasar, contoh soal, atau langkah penyelesaian.</p>
                     </div>
                 </div>
 
-                <div>
-                    <div class="sr-section-title">Tag materi</div>
-                    <div class="sr-chip-row">
-                        <span class="sr-chip">Brute Force</span>
-                        <span class="sr-chip">Divide & Conquer</span>
-                        <span class="sr-chip">Analisis waktu</span>
-                        <span class="sr-chip">Pseudocode</span>
+                {{-- USER MESSAGE --}}
+                <div class="flex items-start justify-end gap-3">
+                    <div
+                        class="max-w-xl rounded-2xl bg-[#B8352E] text-white shadow-sm px-4 py-3 text-sm">
+                        <p>Halo! Aku mau tanya tentang Divide and Conquer dong.</p>
+                    </div>
+                    <div class="w-9 h-9 rounded-full bg-slate-300 flex items-center justify-center text-xs font-semibold">
+                        AH
                     </div>
                 </div>
 
-                <p class="sr-note">
-                    Nanti ketika backend sudah siap, daftar materi di panel ini bisa diisi dari file yang diupload dosen untuk CLO ini.
-                </p>
-            </aside>
+            </div>
+
+            {{-- SUGGEST MESSAGE + INPUT --}}
+            <div class="mt-4">
+                {{-- SUGGEST --}}
+                <div class="flex flex-wrap gap-3 mb-3">
+                    <button
+                        class="px-5 py-2 rounded-full text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800">
+                        Jelaskan konsep Divide and Conquer
+                    </button>
+                    <button
+                        class="px-5 py-2 rounded-full text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800">
+                        Beri contoh soal & pembahasan
+                    </button>
+                    <button
+                        class="px-5 py-2 rounded-full text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800">
+                        Bandingkan dengan Greedy
+                    </button>
+                </div>
+
+                {{-- INPUT BAR --}}
+                <div
+                    class="bg-white dark:bg-slate-900 rounded-[32px] shadow-[0_12px_40px_rgba(15,23,42,0.10)] px-5 py-3 flex items-end gap-3">
+                    <textarea
+                        class="flex-1 resize-none border-none focus:ring-0 focus:outline-none text-sm bg-transparent placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                        rows="2"
+                        placeholder="Tanya pertanyaanmu disini..."></textarea>
+
+                    <button
+                        type="button"
+                        class="w-10 h-10 rounded-full bg-[#B8352E] flex items-center justify-center text-white shadow-md hover:bg-[#8f251f]">
+                        <span class="text-sm">↑</span>
+                    </button>
+                </div>
+            </div>
         </section>
-    </main>
+    </div>
 
-    <script>
-        // Dummy chat messages
-        const initialMessages = [
-            {
-                id: 1,
-                from: 'bot',
-                text: 'Halo! 👋 Aku EduChat. Di CLO ini kita fokus ke brute force dan divide & conquer. Ada bagian mana yang paling bikin kamu bingung?',
-                time: '19:01'
-            },
-            {
-                id: 2,
-                from: 'user',
-                text: 'Kak, aku masih bingung bedanya brute force sama divide and conquer itu apa ya? Soalnya kelihatannya sama-sama nyari solusi.',
-                time: '19:02'
-            },
-            {
-                id: 3,
-                from: 'bot',
-                text: 'Pertanyaan bagus banget. Singkatnya:\n\n• Brute force: coba semua kemungkinan sampai ketemu jawaban.\n• Divide and conquer: bagi masalah jadi bagian-bagian kecil, selesaikan, lalu gabungkan.\n\nMau mulai dari contoh brute force dulu atau divide and conquer dulu?',
-                time: '19:02'
-            }
-        ];
+    {{-- ====== RIGHT: INFO PANEL (MATA KULIAH) ====== --}}
+   
+    <aside
+        id="cloInfoPanel"
+        class="w-80 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm p-6 hidden">
+        <h2 class="text-sm font-semibold text-[#B8352E] mb-3">
+            Mata Kuliah
+        </h2>
 
-        const chatBody = document.getElementById('chatBody');
-        const chatForm = document.getElementById('chatForm');
-        const chatInput = document.getElementById('chatInput');
-        const sidebarRight = document.getElementById('sidebarRight');
-        const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+        <div class="text-xs leading-relaxed text-slate-700 dark:text-slate-300 space-y-3">
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam efficitur varius eros. Aenean lobortis
+                ipsum ac turpis fringilla, vel sodales felis semper. Aliquam varius hendrerit ipsum, finibus gravida erat
+                venenatis vitae.
+            </p>
+            <p>
+                Curabitur convallis vel tortor quis egestas. Sed a tellus molestie, venenatis dui vitae, semper massa.
+                Praesent bibendum non risus et ornare. Cras sit amet erat eu orci fermentum posuere.
+            </p>
+            <p>
+                Praesent feugiat fermentum ipsum id interdum. Integer sapien eros, auctor fermentum tincidunt nec, luctus
+                quis turpis. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
+            </p>
+        </div>
+    </aside>
 
-        let messages = [...initialMessages];
-
-        function renderMessages() {
-            chatBody.innerHTML = '';
-
-            messages.forEach(msg => {
-                const group = document.createElement('div');
-                group.className = 'message-group';
-
-                const meta = document.createElement('div');
-                meta.className = 'msg-meta';
-                meta.textContent = (msg.from === 'bot' ? 'EduChat' : 'Kamu') + ' • ' + msg.time;
-
-                const row = document.createElement('div');
-                row.className = 'msg-row ' + (msg.from === 'user' ? 'user' : '');
-
-                const avatar = document.createElement('div');
-                avatar.className = 'msg-avatar ' + (msg.from === 'user' ? 'msg-avatar-user' : '');
-                avatar.innerHTML = msg.from === 'bot' ? '<span>EC</span>' : '👤';
-
-                const bubble = document.createElement('div');
-                bubble.className = 'msg-bubble ' + (msg.from === 'user' ? 'msg-bubble-user' : 'msg-bubble-bot');
-                bubble.innerHTML = msg.text.replace(/\n/g, '<br>');
-
-                row.appendChild(avatar);
-                row.appendChild(bubble);
-
-                group.appendChild(meta);
-                group.appendChild(row);
-
-                chatBody.appendChild(group);
-            });
-
-            chatBody.scrollTop = chatBody.scrollHeight;
-        }
-
-        chatForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-            const text = chatInput.value.trim();
-            if (!text) return;
-
-            const now = new Date();
-            const time = now.toLocaleTimeString('id-ID', {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-
-            messages.push({
-                id: Date.now(),
-                from: 'user',
-                text,
-                time
-            });
-
-            chatInput.value = '';
-            renderMessages();
-
-            // Tambah "dummy" balasan EduChat (slicing saja)
-            setTimeout(() => {
-                messages.push({
-                    id: Date.now() + 1,
-                    from: 'bot',
-                    text: 'Oke, kita bahas pelan-pelan ya 👇\n\n' +
-                          '1. Aku akan jelaskan konsep dasarnya dulu.\n' +
-                          '2. Habis itu kita lihat satu contoh soal yang mirip dengan pertanyaanmu.\n\n' +
-                          'Ini cuma simulasi. Nanti kalau backend sudah siap, jawaban di sini akan diisi dari model AI / chatbot beneran.',
-                    time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-                });
-                renderMessages();
-            }, 700);
-        });
-
-        chatInput.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                chatForm.dispatchEvent(new Event('submit'));
-            }
-        });
-
-        toggleSidebarBtn.addEventListener('click', function () {
-            sidebarRight.classList.toggle('hidden');
-        });
-
-        // First render
-        renderMessages();
-    </script>
-</body>
-</html>
+</div>
+@endsection
