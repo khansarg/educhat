@@ -55,7 +55,7 @@
         <section class="flex-1 bg-transparent rounded-3xl flex flex-col">
 
             {{-- LIST PESAN --}}
-            <div class="flex-1 overflow-y-auto pr-2 space-y-4 pt-2">
+            <div id="chatMessages" class="flex-1 overflow-y-auto pr-2 space-y-4 pt-2">
 
                 {{-- BOT MESSAGE 1 --}}
                 <div class="flex items-start gap-3">
@@ -95,31 +95,37 @@
 
             {{-- SUGGEST MESSAGE + INPUT --}}
             <div class="mt-4">
-                {{-- SUGGEST --}}
-                <div class="flex flex-wrap gap-3 mb-3">
-                    <button
-                        class="px-5 py-2 rounded-full text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800">
-                        Jelaskan konsep Divide and Conquer
-                    </button>
-                    <button
-                        class="px-5 py-2 rounded-full text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800">
-                        Beri contoh soal & pembahasan
-                    </button>
-                    <button
-                        class="px-5 py-2 rounded-full text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800">
-                        Bandingkan dengan Greedy
-                    </button>
-                </div>
+            {{-- SUGGEST --}}
+            <div class="flex flex-wrap gap-3 mb-3">
+                <button
+                       class="suggest-msg px-5 py-2 rounded-full text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800">
+                   Jelaskan konsep Divide and Conquer
+                </button>
+
+                <button
+                        class="suggest-msg px-5 py-2 rounded-full text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800">
+                    Beri contoh soal & pembahasan
+                </button>
+
+                <button
+                    class="suggest-msg px-5 py-2 rounded-full text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800">
+                    Bandingkan dengan Greedy
+                </button>
+            </div>
+        </div>
+
 
                 {{-- INPUT BAR --}}
                 <div
                     class="bg-white dark:bg-slate-900 rounded-[32px] shadow-[0_12px_40px_rgba(15,23,42,0.10)] px-5 py-3 flex items-end gap-3">
                     <textarea
+                        id="chatInput"
                         class="flex-1 resize-none border-none focus:ring-0 focus:outline-none text-sm bg-transparent placeholder:text-slate-400 dark:placeholder:text-slate-500"
                         rows="2"
                         placeholder="Tanya pertanyaanmu disini..."></textarea>
 
                     <button
+                        id="sendBtn"
                         type="button"
                         class="w-10 h-10 rounded-full bg-[#B8352E] flex items-center justify-center text-white shadow-md hover:bg-[#8f251f]">
                         <span class="text-sm">↑</span>
