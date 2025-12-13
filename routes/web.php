@@ -89,12 +89,20 @@ Route::prefix('dosen')->name('dosen.')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // halaman tambah materi (per CLO)
+    // CREATE
     Route::get('/materi/create', [MateriController::class, 'create'])->name('materi.create');
-
-    // nanti kalau sudah pakai DB + upload beneran
     Route::post('/materi', [MateriController::class, 'store'])->name('materi.store');
+
+    // EDIT (pages only)
+    Route::get('/materi/{id}/edit', [MateriController::class, 'edit'])->name('materi.edit');
+
+    // UPDATE (nanti DB)
+    Route::put('/materi/{id}', [MateriController::class, 'update'])->name('materi.update');
+
+    // DELETE (nanti DB, bisa tetap tombol modal sekarang)
+    Route::delete('/materi/{id}', [MateriController::class, 'destroy'])->name('materi.destroy');
 });
+
 
 
 

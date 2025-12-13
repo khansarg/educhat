@@ -361,3 +361,140 @@ if (dropzone && fileInput && fileGrid && emptyHint) {
 
   render();
 }
+
+// ===== DOSEN: EDIT RINGKASAN MATERI (UMUM) =====
+const summaryEditBtn = document.getElementById("summaryEditBtn");
+const summarySaveBtn = document.getElementById("summarySaveBtn");
+const summaryCancelBtn = document.getElementById("summaryCancelBtn");
+
+const summaryText = document.getElementById("summaryText");
+const summaryTextarea = document.getElementById("summaryTextarea");
+const summaryHint = document.getElementById("summaryHint");
+
+if (summaryEditBtn && summarySaveBtn && summaryCancelBtn && summaryText && summaryTextarea) {
+  const STORAGE_KEY = "dosen_summary_umum"; // demo only
+
+  // load from localStorage (biar setelah refresh masih ada)
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved && saved.trim().length > 0) {
+    summaryText.textContent = saved;
+    summaryTextarea.value = saved;
+  }
+
+  const setEditMode = (isEdit) => {
+    if (isEdit) {
+      summaryText.classList.add("hidden");
+      summaryTextarea.classList.remove("hidden");
+      summaryHint?.classList.remove("hidden");
+
+      summaryEditBtn.classList.add("hidden");
+      summarySaveBtn.classList.remove("hidden");
+      summaryCancelBtn.classList.remove("hidden");
+
+      summaryTextarea.focus();
+    } else {
+      summaryText.classList.remove("hidden");
+      summaryTextarea.classList.add("hidden");
+      summaryHint?.classList.add("hidden");
+
+      summaryEditBtn.classList.remove("hidden");
+      summarySaveBtn.classList.add("hidden");
+      summaryCancelBtn.classList.add("hidden");
+    }
+  };
+
+  let beforeEdit = summaryTextarea.value;
+
+  summaryEditBtn.addEventListener("click", () => {
+    beforeEdit = summaryTextarea.value;
+    setEditMode(true);
+  });
+
+  summaryCancelBtn.addEventListener("click", () => {
+    summaryTextarea.value = beforeEdit;
+    setEditMode(false);
+  });
+
+  summarySaveBtn.addEventListener("click", () => {
+    const val = summaryTextarea.value.trim();
+
+    // update UI
+    summaryText.textContent = val.length ? val : "—";
+
+    // demo: simpan ke localStorage
+    localStorage.setItem(STORAGE_KEY, val);
+
+    setEditMode(false);
+  });
+}
+
+// ===== DOSEN: EDIT RINGKASAN PER CLO =====
+const cloSummaryEditBtn = document.getElementById("cloSummaryEditBtn");
+const cloSummarySaveBtn = document.getElementById("cloSummarySaveBtn");
+const cloSummaryCancelBtn = document.getElementById("cloSummaryCancelBtn");
+
+const cloSummaryText = document.getElementById("cloSummaryText");
+const cloSummaryTextarea = document.getElementById("cloSummaryTextarea");
+const cloSummaryHint = document.getElementById("cloSummaryHint");
+const activeCloValue = document.getElementById("activeCloValue");
+
+if (
+  cloSummaryEditBtn && cloSummarySaveBtn && cloSummaryCancelBtn &&
+  cloSummaryText && cloSummaryTextarea && activeCloValue
+) {
+  const clo = (activeCloValue.value || "1").toString();
+  const STORAGE_KEY = `dosen_summary_clo_${clo}`; // beda per clo
+
+  // load saved
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved && saved.trim().length > 0) {
+    cloSummaryText.textContent = saved;
+    cloSummaryTextarea.value = saved;
+  }
+
+  const setEditMode = (isEdit) => {
+    if (isEdit) {
+      cloSummaryText.classList.add("hidden");
+      cloSummaryTextarea.classList.remove("hidden");
+      cloSummaryHint?.classList.remove("hidden");
+
+      cloSummaryEditBtn.classList.add("hidden");
+      cloSummarySaveBtn.classList.remove("hidden");
+      cloSummaryCancelBtn.classList.remove("hidden");
+
+      cloSummaryTextarea.focus();
+    } else {
+      cloSummaryText.classList.remove("hidden");
+      cloSummaryTextarea.classList.add("hidden");
+      cloSummaryHint?.classList.add("hidden");
+
+      cloSummaryEditBtn.classList.remove("hidden");
+      cloSummarySaveBtn.classList.add("hidden");
+      cloSummaryCancelBtn.classList.add("hidden");
+    }
+  };
+
+  let beforeEdit = cloSummaryTextarea.value;
+
+  cloSummaryEditBtn.addEventListener("click", () => {
+    beforeEdit = cloSummaryTextarea.value;
+    setEditMode(true);
+  });
+
+  cloSummaryCancelBtn.addEventListener("click", () => {
+    cloSummaryTextarea.value = beforeEdit;
+    setEditMode(false);
+  });
+
+  cloSummarySaveBtn.addEventListener("click", () => {
+    const val = cloSummaryTextarea.value.trim();
+
+    // update UI
+    cloSummaryText.textContent = val.length ? val : "—";
+
+    // demo: simpan per CLO
+    localStorage.setItem(STORAGE_KEY, val);
+
+    setEditMode(false);
+  });
+}

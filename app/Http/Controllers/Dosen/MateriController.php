@@ -9,18 +9,35 @@ class MateriController extends Controller
 {
     public function create(Request $request)
     {
-        $clo = (int) $request->query('clo', 1);
-        if (!in_array($clo, [1,2,3])) $clo = 1;
-
-        // dummy: nanti ambil dari DB
-        $courseTitle = 'Strategi Algoritma';
-
-        return view('dosen.materi-create', compact('clo', 'courseTitle'));
+        // dummy view form
+        return view('dosen.materi.form', [
+            'mode' => 'create',
+            'clo'  => (int) $request->query('clo', 1),
+        ]);
     }
 
-    public function store(Request $request)
+    public function edit(Request $request, $id)
     {
-        // nanti isi upload + simpan DB
-        return redirect()->route('dosen.dashboard', ['clo' => $request->input('clo', 1)]);
+        // dummy data materi
+        $materi = [
+            'id' => $id,
+            'judul' => 'Brute Force',
+            'pdf' => 'aaa.pdf',
+        ];
+
+        return view('dosen.materi.form', [
+            'mode' => 'edit',
+            'clo'  => (int) $request->query('clo', 1),
+            'materi' => $materi,
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        // dummy: nanti kalau DB tinggal delete beneran
+        return redirect()
+            ->route('dosen.dashboard')
+            ->with('success', "Materi #{$id} berhasil dihapus (dummy).");
     }
 }
+
