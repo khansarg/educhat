@@ -103,6 +103,24 @@ Route::prefix('dosen')->name('dosen.')->group(function () {
     Route::delete('/materi/{id}', [MateriController::class, 'destroy'])->name('materi.destroy');
 });
 
+// ------------------ ADMIN PAGES (TANPA AUTH DULU) ------------------
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\LearningPathController;
+
+Route::prefix('admin')->name('admin.')->group(function () {
+
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])
+        ->name('dashboard');
+
+    // ✅ COURSE DETAIL
+    Route::get('/course/{id}', function ($id) {
+        return view('admin.course', [
+            'currentCourse' => (int) $id
+        ]);
+    })->name('course.show');
+
+});
+
 
 
 
