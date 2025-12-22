@@ -50,17 +50,25 @@
                         Buat akun untuk dapat mengakses EduChat
                     </p>
 
-                    <form id="registerForm">
+
+                    <form method="POST" action="{{ route('register') }}">
+                        @csrf
 
                         {{-- NAMA --}}
                         <div class="mb-4">
                             <label class="text-sm font-medium">Nama</label>
                             <input
                                 type="text"
+                                name="name"
+                                value="{{ old('name') }}"
                                 placeholder="Masukkan Nama Lengkap"
-                                class="w-full mt-1 px-4 py-2 rounded-xl border border-slate-300 focus:ring-[#B8352E] focus:border-[#B8352E]"
+                                class="w-full mt-1 px-4 py-2 rounded-xl border focus:ring-2 focus:ring-[#B8352E] focus:outline-none
+                                       {{ $errors->has('name') ? 'border-red-300 bg-red-50' : 'border-slate-300' }}"
                                 required
                             >
+                            @error('name')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         {{-- EMAIL --}}
@@ -68,10 +76,33 @@
                             <label class="text-sm font-medium">Email</label>
                             <input
                                 type="email"
+                                name="email"
+                                value="{{ old('email') }}"
                                 placeholder="Masukkan Email Kampus"
-                                class="w-full mt-1 px-4 py-2 rounded-xl border border-slate-300 focus:ring-[#B8352E] focus:border-[#B8352E]"
+                                class="w-full mt-1 px-4 py-2 rounded-xl border focus:ring-2 focus:ring-[#B8352E] focus:outline-none
+                                       {{ $errors->has('email') ? 'border-red-300 bg-red-50' : 'border-slate-300' }}"
                                 required
                             >
+                            @error('email')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        {{-- NIM --}}
+                        <div class="mb-4">
+                            <label class="text-sm font-medium">NIM</label>
+                            <input
+                                type="text"
+                                name="nim"
+                                value="{{ old('nim') }}"
+                                placeholder="Masukkan NIM"
+                                class="w-full mt-1 px-4 py-2 rounded-xl border focus:ring-2 focus:ring-[#B8352E] focus:outline-none
+                                       {{ $errors->has('nim') ? 'border-red-300 bg-red-50' : 'border-slate-300' }}"
+                                required
+                            >
+                            @error('nim')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         {{-- PASSWORD --}}
@@ -79,10 +110,15 @@
                             <label class="text-sm font-medium">Kata Sandi</label>
                             <input
                                 type="password"
-                                placeholder="Masukkan Kata Sandi"
-                                class="w-full mt-1 px-4 py-2 rounded-xl border border-slate-300 focus:ring-[#B8352E] focus:border-[#B8352E]"
+                                name="password"
+                                placeholder="Masukkan Kata Sandi (min. 6 karakter)"
+                                class="w-full mt-1 px-4 py-2 rounded-xl border focus:ring-2 focus:ring-[#B8352E] focus:outline-none
+                                       {{ $errors->has('password') ? 'border-red-300 bg-red-50' : 'border-slate-300' }}"
                                 required
                             >
+                            @error('password')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         {{-- CONFIRM PASSWORD --}}
@@ -90,8 +126,10 @@
                             <label class="text-sm font-medium">Konfirmasi Kata Sandi</label>
                             <input
                                 type="password"
+                                name="password_confirmation"
                                 placeholder="Masukkan Konfirmasi Kata Sandi"
-                                class="w-full mt-1 px-4 py-2 rounded-xl border border-slate-300 focus:ring-[#B8352E] focus:border-[#B8352E]"
+                                class="w-full mt-1 px-4 py-2 rounded-xl border focus:ring-2 focus:ring-[#B8352E] focus:outline-none
+                                       {{ $errors->has('password_confirmation') ? 'border-red-300 bg-red-50' : 'border-slate-300' }}"
                                 required
                             >
                         </div>

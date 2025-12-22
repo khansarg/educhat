@@ -43,7 +43,19 @@
                     Ayo masuk dan mulai jelajahi EduChat!
                 </p>
 
-                <form id="loginForm" class="space-y-5">
+
+                {{-- SUCCESS MESSAGE (optional, jika ada dari register) --}}
+                @if (session('success'))
+                    <div class="mb-5 bg-green-50 border border-green-200 rounded-xl p-4">
+                        <div class="flex items-start gap-3">
+                            <span class="text-green-500 text-lg">✓</span>
+                            <p class="text-sm text-green-800">{{ session('success') }}</p>
+                        </div>
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('login') }}" class="space-y-5">
+                    @csrf
 
                     {{-- EMAIL --}}
                     <div>
@@ -51,10 +63,15 @@
                         <input
                             type="email"
                             name="email"
+                            value="{{ old('email') }}"
                             required
                             placeholder="Masukkan Email Kampus"
-                            class="mt-1 w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#B8352E] focus:outline-none"
+                            class="mt-1 w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#B8352E] focus:outline-none
+                                   {{ $errors->has('email') ? 'border-red-300 bg-red-50' : 'border-slate-300' }}"
                         >
+                        @error('email')
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     {{-- PASSWORD --}}
@@ -65,14 +82,17 @@
                             name="password"
                             required
                             placeholder="Masukkan Kata Sandi"
-                            class="mt-1 w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#B8352E] focus:outline-none"
+                            class="mt-1 w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#B8352E] focus:outline-none
+                                   {{ $errors->has('password') ? 'border-red-300 bg-red-50' : 'border-slate-300' }}"
                         >
+                        @error('password')
+                            <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     {{-- BUTTON --}}
                     <button
                         type="submit"
-                        id="submitBtn"
                         class="w-full bg-[#B8352E] text-white py-3 rounded-xl text-sm font-medium hover:bg-[#8f251f] transition"
                     >
                         Masuk
@@ -89,22 +109,6 @@
         </div>
 
     </main>
-
-    {{-- PURE FRONTEND DEMO: BELUM BACKEND --}}
-    <script>
-        const form = document.getElementById('loginForm');
-        const btn = document.getElementById('submitBtn');
-
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-            btn.disabled = true;
-            btn.textContent = 'Masuk...';
-
-            setTimeout(() => {
-                window.location.href = '/dashboard';
-            }, 600);
-        });
-    </script>
 
 </body>
 </html>

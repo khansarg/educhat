@@ -1,5 +1,6 @@
 {{-- resources/views/layouts/admin.blade.php --}}
 @extends('layouts.base')
+<meta name="csrf-token" content="{{ csrf_token() }}">
 
 @section('body')
 <div class="flex h-screen">

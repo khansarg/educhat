@@ -126,4 +126,5 @@ class ChatController extends Controller
             'assistant_message' => $assistantMessage,
         ]);
     }
+    
 }

@@ -1,4 +1,4 @@
-{{-- resources/views/student/layout.blade.php --}}
+{{-- resources/views/layouts/student.blade.php --}}
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -11,6 +11,12 @@
 
     {{-- Vite --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
 </head>
 <body class="h-screen overflow-hidden bg-[#F4F7FB] font-sans text-slate-900 dark:bg-slate-950 dark:text-slate-100">
 
@@ -22,18 +28,58 @@
     @hasSection('middle_sidebar')
         @yield('middle_sidebar')
     @else
-        @include('student.partials.course-list')
+        {{-- Fallback: tampilkan course-list jika ada data $courses --}}
+        @if(isset($courses))
+            @include('student.partials.course-list', ['courses' => $courses])
+        @endif
     @endif
-
 
     {{-- Main content --}}
     <main class="flex-1 flex flex-col overflow-hidden px-10 py-10">
         @yield('content')
     </main>
-
-
-
 </div>
+
+{{-- Scripts --}}
+<script>
+    // Dark mode toggle
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const html = document.documentElement;
+
+    // Load saved theme
+    if (localStorage.getItem('theme') === 'dark') {
+        html.classList.add('dark');
+    }
+
+    darkModeToggle?.addEventListener('click', () => {
+        html.classList.toggle('dark');
+        localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+    });
+
+    // Profile popup
+    const profileBtn = document.getElementById('profileBtn');
+    const profilePopup = document.getElementById('profilePopup');
+    const profileOverlay = document.getElementById('profileOverlay');
+
+    profileBtn?.addEventListener('click', () => {
+        profilePopup.classList.toggle('hidden');
+        profileOverlay.classList.toggle('hidden');
+    });
+
+    profileOverlay?.addEventListener('click', () => {
+        profilePopup.classList.add('hidden');
+        profileOverlay.classList.add('hidden');
+    });
+
+    // Info panel toggle (untuk chat page)
+    const infoToggleBtn = document.getElementById('infoToggleBtn');
+    const cloInfoPanel = document.getElementById('cloInfoPanel');
+
+    infoToggleBtn?.addEventListener('click', () => {
+        cloInfoPanel.classList.toggle('hidden');
+    });
+</script>
+@stack('scripts')  <!-- Pastikan ini ada di bawah, tepat sebelum penutupan </body> -->
 
 </body>
 </html>

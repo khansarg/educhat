@@ -1,13 +1,8 @@
 {{-- resources/views/admin/partials/course-list.blade.php --}}
 @php
-    $currentCourse = $currentCourse ?? null;
-
-    $courses = [
-        1 => 'Algoritma Pemrograman',
-        2 => 'Algoritma Pemrograman Lanjutan',
-        3 => 'Analisis Kompleksitas Algoritma',
-        4 => 'Strategi Algoritma',
-    ];
+  $courses = $courses ?? collect();
+  $currentCourse = $currentCourse ?? null;
+  $currentClo = $currentClo ?? null;
 @endphp
 
 <aside class="w-80 bg-white border-r flex flex-col">
@@ -21,17 +16,24 @@
         </h1>
     </div>
 
+    <a href="{{ route('admin.course.create') }}"
+       class="mx-6 my-4 px-4 py-2 rounded-xl bg-[#B8352E] text-white text-sm text-center">
+        + Tambah Course
+    </a>
+
     {{-- Course list --}}
     <div class="flex-1 overflow-y-auto">
-        @foreach($courses as $id => $name)
-            <a href="{{ route('admin.course.show', $id) }}"
+        @foreach($courses as $c)
+            <a href="{{ route('admin.course.show', $c->id) }}"
                class="flex items-center gap-3 px-6 h-14 border-b
-               {{ $currentCourse === $id ? 'bg-[#B8352E]/10 text-[#B8352E]' : 'hover:bg-slate-50' }}">
+               {{ ($currentCourse ?? null) == $c->id ? 'bg-[#B8352E]/10 text-[#B8352E]' : 'hover:bg-slate-50' }}">
+
                 <div class="w-7 h-7 rounded-xl bg-[#B8352E]/10 flex items-center justify-center">
                     &lt;/&gt;
                 </div>
+
                 <span class="text-sm font-medium">
-                    {{ $name }}
+                    {{ $c->name }}
                 </span>
             </a>
         @endforeach
