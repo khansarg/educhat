@@ -153,6 +153,11 @@ Route::post('/chat/{courseId}/clo/{cloId}/ask', [ChatController::class, 'ask'])
         // Dashboard
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])
             ->name('dashboard');
+
+        // CSRF token endpoint
+        Route::get('/csrf-token', function () {
+            return response()->json(['csrf_token' => csrf_token()]);
+        })->name('csrf-token');
         Route::get('/course/create', [AdminController::class, 'createCourse'])
         ->name('course.create');
         Route::post('/course', [AdminController::class, 'storeCourse'])

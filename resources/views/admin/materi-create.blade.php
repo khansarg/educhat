@@ -7,7 +7,6 @@
 @php
   $isEdit = isset($material) && $material;
 
-  // ambil file lama (edit mode) + pakai original name (lihat catatan model di bawah)
   $existingFilesPhp = [];
   if ($isEdit) {
     $existingFilesPhp = $material->files->map(function ($f) {
@@ -20,53 +19,50 @@
   }
 @endphp
 
-<div class="bg-white rounded-[28px] border border-slate-200 p-10"
+<div class="bg-white dark:bg-slate-900 rounded-[28px] border border-slate-200 dark:border-slate-800 p-10"
      data-course-id="{{ $course->id }}"
      data-clo-id="{{ $clo->id }}"
      data-material-id="{{ $isEdit ? $material->id : '' }}">
 
-  {{-- Header --}}
   <div class="flex items-start justify-between gap-6 mb-10">
     <div>
-      <h1 class="text-3xl font-semibold text-slate-900">
+      <h1 class="text-3xl font-semibold text-slate-900 dark:text-slate-50">
         {{ $isEdit ? 'Edit Materi' : 'Tambah Materi' }}
       </h1>
 
       <div class="mt-4 flex items-center gap-2">
-        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-200">
           {{ $course->name }}
         </span>
-        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-700">
+        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-200">
           {{ $clo->title ?? ('CLO '.$clo->order) }}
         </span>
       </div>
 
-      <p id="saveStatusMateri" class="mt-3 text-sm text-slate-500 hidden">Menyimpan...</p>
+      <p id="saveStatusMateri" class="mt-3 text-sm text-slate-500 dark:text-slate-400 hidden">Menyimpan...</p>
     </div>
   </div>
 
-  {{-- Form --}}
   <div class="space-y-8">
-
-    {{-- Judul --}}
     <div class="max-w-2xl">
-      <label class="text-sm font-semibold text-slate-900">Judul Materi</label>
+      <label class="text-sm font-semibold text-slate-900 dark:text-slate-100">Judul Materi</label>
       <input
         id="materiTitleInputMateri"
         type="text"
         value="{{ $isEdit ? $material->title : '' }}"
-        class="mt-2 w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#9D1535]/20"
+        class="mt-2 w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700
+               bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100
+               focus:outline-none focus:ring-2 focus:ring-[#9D1535]/20"
         placeholder="Masukkan judul materi..." />
       <p id="titleErrorMateri" class="mt-2 text-sm text-rose-600 hidden">
         Judul materi wajib diisi.
       </p>
     </div>
 
-    {{-- Upload --}}
     <div>
-      <label class="text-sm font-semibold text-slate-900">Upload File (PDF)</label>
+      <label class="text-sm font-semibold text-slate-900 dark:text-slate-100">Upload File (PDF)</label>
 
-      <div class="mt-3 bg-slate-50 rounded-3xl border border-slate-200 p-6">
+      <div class="mt-3 bg-slate-50 dark:bg-slate-950/50 rounded-3xl border border-slate-200 dark:border-slate-800 p-6">
         <div id="fileGridMateri" class="grid grid-cols-6 gap-6"></div>
 
         <p id="emptyHintMateri" class="text-sm text-slate-400">
@@ -79,10 +75,12 @@
 
       <div
         id="dropzoneMateri"
-        class="mt-6 rounded-3xl border-2 border-dashed border-slate-300 bg-white p-10 text-center cursor-pointer hover:bg-slate-50 transition">
+        class="mt-6 rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-700
+               bg-white dark:bg-slate-950 p-10 text-center cursor-pointer
+               hover:bg-slate-50 dark:hover:bg-slate-900/60 transition">
         <div class="flex flex-col items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center">📄</div>
-          <p class="text-sm text-slate-500">Upload File disini</p>
+          <div class="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">📄</div>
+          <p class="text-sm text-slate-500 dark:text-slate-300">Upload File disini</p>
           <p class="text-xs text-slate-400">Klik atau drag & drop (PDF)</p>
         </div>
 
@@ -90,7 +88,6 @@
       </div>
     </div>
 
-    {{-- Buttons --}}
     <div class="pt-8 flex items-center justify-center gap-8">
       <button
         id="saveBtnMateri"
@@ -101,11 +98,10 @@
 
       <a
         href="{{ route('admin.course.show', $course->id) }}"
-        class="w-[420px] py-4 rounded-full bg-slate-300 text-white font-semibold text-center hover:bg-slate-400">
+        class="w-[420px] py-4 rounded-full bg-slate-300 dark:bg-slate-700 text-white font-semibold text-center hover:bg-slate-400 dark:hover:bg-slate-600">
         Back
       </a>
     </div>
-
   </div>
 </div>
 @endsection
@@ -116,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const root = document.querySelector('[data-course-id][data-clo-id]');
   const courseId = root?.dataset.courseId;
   const cloId = root?.dataset.cloId;
-  const materialId = (root?.dataset.materialId || '').trim(); // kosong kalau create
+  const materialId = (root?.dataset.materialId || '').trim();
 
   const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
@@ -145,11 +141,9 @@ document.addEventListener("DOMContentLoaded", () => {
     saving ? show(saveStatus) : hide(saveStatus);
   };
 
-  // ===== state =====
-  const existingFiles = @json($existingFilesPhp); // dari DB (edit)
-  const newFiles = []; // file baru (belum upload)
+  const existingFiles = @json($existingFilesPhp);
+  const newFiles = [];
 
-  // ===== helpers fetch =====
   async function safeJsonFetch(url, options = {}) {
     const res = await fetch(url, {
       method: options.method || 'GET',
@@ -207,7 +201,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return data;
   }
 
-  // ===== render grid =====
   function render() {
     if (!fileGrid) return;
     fileGrid.innerHTML = '';
@@ -216,7 +209,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (total === 0) emptyHint?.classList.remove('hidden');
     else emptyHint?.classList.add('hidden');
 
-    // existing files
     existingFiles.forEach((f) => {
       const item = document.createElement('div');
       item.className = "flex flex-col items-center text-center gap-2";
@@ -235,14 +227,13 @@ document.addEventListener("DOMContentLoaded", () => {
       fileGrid.appendChild(item);
     });
 
-    // new files
     newFiles.forEach((file, idx) => {
       const item = document.createElement('div');
       item.className = "flex flex-col items-center text-center gap-2";
 
       item.innerHTML = `
         <div class="w-12 h-12 flex items-center justify-center"><span class="text-4xl">📕</span></div>
-        <p class="text-xs font-semibold text-slate-900 truncate w-full" title="${file.name}">
+        <p class="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate w-full" title="${file.name}">
           ${file.name}
         </p>
         <button type="button" class="text-xs text-rose-600 hover:underline" data-remove-new="${idx}">
@@ -252,7 +243,6 @@ document.addEventListener("DOMContentLoaded", () => {
       fileGrid.appendChild(item);
     });
 
-    // remove new
     fileGrid.querySelectorAll('[data-remove-new]').forEach(btn => {
       btn.addEventListener('click', () => {
         const i = parseInt(btn.getAttribute('data-remove-new'), 10);
@@ -261,7 +251,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // remove existing
     fileGrid.querySelectorAll('[data-remove-existing]').forEach(btn => {
       btn.addEventListener('click', async () => {
         const fileId = btn.getAttribute('data-remove-existing');
@@ -285,14 +274,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const incoming = Array.from(fileList || []);
     const pdfs = incoming.filter(f => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"));
     if (!pdfs.length) return;
-
     pdfs.forEach(f => newFiles.push(f));
     render();
   }
 
-  // ===== dropzone events =====
   dropzone?.addEventListener("click", () => fileInput?.click());
-
   fileInput?.addEventListener("change", (e) => {
     addFiles(e.target.files);
     fileInput.value = "";
@@ -313,7 +299,6 @@ document.addEventListener("DOMContentLoaded", () => {
     addFiles(e.dataTransfer.files);
   });
 
-  // ===== Save =====
   saveBtn?.addEventListener('click', async () => {
     hide(titleError);
     hide(fileError);
@@ -321,7 +306,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const title = (titleInput?.value || '').trim();
     if (!title) { show(titleError); return; }
 
-    // create: wajib ada minimal 1 file
     if (!materialId && (existingFiles.length + newFiles.length === 0)) {
       show(fileError);
       return;
@@ -333,7 +317,6 @@ document.addEventListener("DOMContentLoaded", () => {
       let mid = materialId;
 
       if (!mid) {
-        // CREATE material
         const created = await safeJsonFetch(`/admin/clo/${cloId}/materials`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -343,7 +326,6 @@ document.addEventListener("DOMContentLoaded", () => {
         mid = created?.material?.id;
         if (!mid) throw new Error('Material ID tidak ditemukan dari response backend.');
       } else {
-        // UPDATE material
         await safeJsonFetch(`/admin/material/${mid}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -351,12 +333,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
 
-      // upload file baru
       for (const f of newFiles) {
         await uploadPdf(mid, f);
       }
 
-      // balik ke course
       window.location.href = `/admin/course/${courseId}`;
 
     } catch (e) {
