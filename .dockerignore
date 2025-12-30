@@ -1,0 +1,47 @@
+# Git
+.git
+.gitattributes
+.gitignore
+
+# Dependencies (will be installed in Docker)
+node_modules
+vendor
+
+# Environment files (use Cloud Run secrets)
+.env
+.env.local
+.env.production
+.env.example
+
+# IDE and editor files
+.idea
+.vscode
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Docker files (not needed in image)
+docker-compose*.yml
+
+# Documentation
+*.md
+
+# Testing
+tests
+phpunit.xml
+.phpunit.result.cache
+
+# Development files
+.editorconfig
+.styleci.yml
+
+# Laravel cache/logs (will be created fresh)
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*
+
+# GitHub
+.github
