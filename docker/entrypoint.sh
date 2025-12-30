@@ -21,11 +21,9 @@ php artisan route:clear
 echo "Caching views..."
 php artisan view:cache
 
-# Run migrations if AUTO_MIGRATE is set
-if [ "${AUTO_MIGRATE}" = "true" ] || grep -q "AUTO_MIGRATE=true" /app/.env 2>/dev/null; then
-    echo "Running database migrations..."
-    php artisan migrate --force
-fi
+# Run migrations (don't fail startup if DB is temporarily unavailable)
+echo "Running database migrations..."
+php artisan migrate --force || echo "Warning: Migration failed, continuing startup..."
 
 # Create storage symlink if not exists
 php artisan storage:link 2>/dev/null || true
