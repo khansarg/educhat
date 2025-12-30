@@ -21,25 +21,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // =========================
   // TOGGLE RIGHT SIDEBAR
-  // =========================
   const infoToggleBtn = document.getElementById('infoToggleBtn');
   const infoPanel = document.getElementById('cloInfoPanel');
+ if (infoToggleBtn && infoPanel) {
+  infoToggleBtn.addEventListener('click', () => {
+    infoPanel.classList.toggle('hidden');
+  });
+}
 
-  if (infoToggleBtn && infoPanel) {
-    infoToggleBtn.addEventListener('click', () => {
-      const isHidden = infoPanel.classList.contains('hidden');
-
-      if (isHidden) {
-        infoPanel.classList.remove('hidden');
-        infoPanel.classList.add('flex', 'flex-col');
-      } else {
-        infoPanel.classList.add('hidden');
-        infoPanel.classList.remove('flex', 'flex-col');
-      }
-    });
-  }
 
   // =========================
   // PROFILE POPUP

@@ -177,6 +177,18 @@ Route::post('/chat/{courseId}/clo/{cloId}/ask', [ChatController::class, 'ask'])
         ->name('coordinator.assign');
     Route::get('/course/{courseId}/clo/{cloId}/materi/create', [AdminController::class, 'createMateri'])
         ->name('materi.create');
+// update course name
+Route::patch('/course/{course}', [AdminController::class, 'updateCourse'])
+        ->name('course.update');
+
+    // ✅ hapus course (dipakai tombol Hapus)
+    Route::delete('/course/{course}', [AdminController::class, 'destroyCourse'])
+        ->name('course.destroy');
+
+    // ✅ hapus CLO (dipakai tombol Hapus CLO)
+    Route::delete('/clo/{clo}', [AdminController::class, 'destroyClo'])
+        ->name('clo.destroy');
+
 
 
     // OPTIONAL tapi sangat dibutuhkan untuk "hapus dosen dari course"

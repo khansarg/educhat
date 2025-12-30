@@ -19,7 +19,33 @@ class AdminController extends Controller
             abort(response()->json(['message' => 'Forbidden'], 403));
         }
     }
+    public function updateCourse(Request $request, Course $course)
+{
+    $data = $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+    ]);
 
+    $course->update([
+        'name' => $data['name'],
+    ]);
+
+    return response()->json(['success' => true]);
+}
+
+public function destroyCourse(Course $course)
+{
+    
+    $course->delete();
+
+    return response()->json(['success' => true]);
+}
+
+public function destroyClo(Clo $clo)
+{
+    $clo->delete();
+
+    return response()->json(['success' => true]);
+}
     // GET /admin/lecturers?search=...
     public function searchLecturers(Request $request)
     {

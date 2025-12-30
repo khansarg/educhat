@@ -49,14 +49,7 @@
       </div>
 
       {{-- toggle right info --}}
-      <button
-        id="infoToggleBtn"
-        class="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800"
-        type="button"
-        aria-controls="cloInfoPanel"
-        aria-expanded="false">
-        <span class="text-sm">📘</span>
-      </button>
+      
     </header>
 
     {{-- CHAT AREA --}}
@@ -154,7 +147,6 @@
         </h2>
 
         <div class="mb-4">
-          <p class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">CLO:</p>
           <p class="text-sm font-semibold text-slate-900 dark:text-slate-50">
             {{ $clo->name ?? $clo->title ?? 'CLO' }}
           </p>
