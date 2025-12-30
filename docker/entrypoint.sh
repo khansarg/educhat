@@ -13,12 +13,12 @@ if [ -f /secrets/.env ]; then
     chown www-data:www-data /app/.env
 fi
 
-# Clear any cached config (we're using mounted .env)
+# Clear any cached config and routes (we're using mounted .env)
 php artisan config:clear
+php artisan route:clear
 
-# Cache routes and views (these don't depend on env)
-echo "Caching routes and views..."
-php artisan route:cache
+# Cache views only (route caching not possible with closure routes)
+echo "Caching views..."
 php artisan view:cache
 
 # Run migrations if AUTO_MIGRATE is set
