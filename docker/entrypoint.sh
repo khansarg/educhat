@@ -6,6 +6,13 @@ echo "Starting EduChat..."
 # Wait a moment for secrets to be mounted
 sleep 1
 
+# Copy the mounted .env file to the app directory
+if [ -f /secrets/.env ]; then
+    echo "Copying .env from secrets mount..."
+    cp /secrets/.env /app/.env
+    chown www-data:www-data /app/.env
+fi
+
 # Clear any cached config (we're using mounted .env)
 php artisan config:clear
 

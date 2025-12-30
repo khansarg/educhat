@@ -58,4 +58,4 @@ jobs:
             --min-instances 0 \
             --max-instances 10 \
             --port 8080 \
-            --set-secrets "/app/.env=educhat-env:latest"
+            --set-secrets "/secrets/.env=educhat-env:latest"
