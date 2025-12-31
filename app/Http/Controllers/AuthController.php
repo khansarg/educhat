@@ -12,33 +12,34 @@ class AuthController extends Controller
 {
     // Register mahasiswa
     public function register(Request $request)
-    {
-        $data = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => [
-                'required',
-                'email',
-                'unique:users,email',
-                function ($attribute, $value, $fail) {
-                    $allowedDomains = ['@student.telkomuniversity.ac.id', '@telkomuniversity.ac.id'];
-                    $isValid = false;
-                    
-                    foreach ($allowedDomains as $domain) {
-                        if (str_ends_with($value, $domain)) {
-                            $isValid = true;
-                            break;
-                        }
+{
+    $data = $request->validate([
+        'name'     => 'required|string|max:255',
+        'email'    => [
+            'required',
+            'email',
+            'unique:users,email',
+            function ($attribute, $value, $fail) {
+                $allowedDomains = [
+                    '@student.telkomuniversity.ac.id'
+                ];
+
+                $isValid = false;
+                foreach ($allowedDomains as $domain) {
+                    if (str_ends_with($value, $domain)) {
+                        $isValid = true;
+                        break;
                     }
-                    
-                    if (!$isValid) {
-                        $fail('Email harus menggunakan domain @student.telkomuniversity.ac.id atau @telkomuniversity.ac.id');
-                    }
-                },
-            ],
-            'password' => 'required|string|min:6|confirmed',
-            'nim'      => 'required|string|unique:users,nim',
-        ], [
-        // Custom error messages
+                }
+
+                if (!$isValid) {
+                    $fail('Email harus menggunakan domain @student.telkomuniversity.ac.id');
+                }
+            },
+        ],
+        'password' => 'required|string|min:6|confirmed',
+        'nim'      => 'required|string|unique:users,nim',
+    ], [
         'name.required' => 'Nama wajib diisi.',
         'email.required' => 'Email wajib diisi.',
         'email.email' => 'Format email tidak valid.',
@@ -50,26 +51,30 @@ class AuthController extends Controller
         'nim.unique' => 'NIM sudah terdaftar.',
     ]);
 
-        // Tentukan role berdasarkan domain email
-        $role = str_ends_with($data['email'], '@student.telkomuniversity.ac.id') 
-                ? 'mahasiswa' 
-                : 'dosen';
+    // Tentukan role
+    $role = str_ends_with($data['email'], '@student.telkomuniversity.ac.id')
+        ? 'mahasiswa'
+        : 'dosen';
 
-        $user = User::create([
-            'name'     => $data['name'],
-            'email'    => $data['email'],
-            'password' => Hash::make($data['password']),
-            'nim'      => $data['nim'],
-            'role'     => $role,
-        ]);
+    // Simpan user
+    User::create([
+        'name'     => $data['name'],
+        'email'    => $data['email'],
+        'password' => Hash::make($data['password']),
+        'nim'      => $data['nim'],
+        'role'     => $role,
+    ]);
 
-        // Login otomatis setelah register
-        Auth::login($user);
-        $request->session()->regenerate();
+    // ❌ JANGAN AUTO LOGIN
+    // Auth::login($user);
+    // $request->session()->regenerate();
 
-        // Redirect berdasarkan role
-        return $this->redirectBasedOnRole($user);
-    }
+    // ✅ Redirect ke login
+    return redirect()
+        ->route('login')
+        ->with('success', 'Registrasi berhasil. Silakan login terlebih dahulu.');
+}
+
 
     public function login(Request $request)
     {
