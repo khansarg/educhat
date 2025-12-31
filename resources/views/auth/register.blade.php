@@ -29,8 +29,8 @@
 <body>
 
     {{-- Top Bar --}}
-    <header class="topbar">
-        <div class="text-xl font-semibold">&lt;/&gt;</div>
+    <header class="w-full py-4 bg-white shadow-sm flex justify-center">
+        <div class="text-xl font-semibold text-slate-900">&lt;/&gt;</div>
     </header>
 
     <main class="w-full flex justify-center px-10 py-6">
