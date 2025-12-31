@@ -13,19 +13,21 @@ if [ -f /secrets/.env ]; then
     chown www-data:www-data /app/.env
 fi
 
-# Clear any cached config (we're using mounted .env)
+# Clear any cached config and routes (we're using mounted .env)
 php artisan config:clear
+php artisan route:clear
 
-# Cache routes and views (these don't depend on env)
-echo "Caching routes and views..."
-php artisan route:cache
+# Cache views only (route caching not possible with closure routes)
+echo "Caching views..."
 php artisan view:cache
 
-# Run migrations if AUTO_MIGRATE is set
-if [ "${AUTO_MIGRATE}" = "true" ] || grep -q "AUTO_MIGRATE=true" /app/.env 2>/dev/null; then
-    echo "Running database migrations..."
-    php artisan migrate --force
-fi
+# Test database connectivity before migrations
+echo "Testing database connection..."
+php artisan tinker --execute="try { DB::connection()->getPdo(); echo 'DB Connected: ' . DB::connection()->getDatabaseName() . PHP_EOL; } catch (\Exception \$e) { echo 'DB Error: ' . \$e->getMessage() . PHP_EOL; }" 2>/dev/null || echo "Warning: Could not test database connection"
+
+# Run migrations (don't fail startup if DB is temporarily unavailable)
+echo "Running database migrations..."
+php artisan migrate --force || echo "Warning: Migration failed, continuing startup..."
 
 # Create storage symlink if not exists
 php artisan storage:link 2>/dev/null || true
