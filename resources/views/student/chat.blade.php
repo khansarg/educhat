@@ -175,28 +175,32 @@
             @if($clo->materials && $clo->materials->count())
               <div class="space-y-3">
                 @foreach($clo->materials as $m)
-                  <div class="border-b border-slate-100 dark:border-slate-800 pb-3 last:border-b-0 last:pb-0">
-                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                      {{ $m->title }}
-                    </p>
+    <div class="border-b border-slate-100 dark:border-slate-800 pb-3 last:border-b-0 last:pb-0">
+        <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">
+            {{ $m->title }}
+        </p>
 
-                    @if($m->files && $m->files->count())
-                      <ul class="mt-2 space-y-1">
-                        @foreach($m->files as $f)
-                          <li>
-                            <a href="{{ $f->download_url }}"
-                               target="_blank"
-                               class="text-xs text-blue-600 dark:text-blue-400 hover:underline break-words">
-                              📄 {{ $f->original_name ?? basename($f->pdf_path ?? 'file.pdf') }}
-                            </a>
-                          </li>
-                        @endforeach
-                      </ul>
-                    @else
-                      <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Belum ada file PDF.</p>
-                    @endif
-                  </div>
+        @if($m->files && $m->files->count())
+            <ul class="mt-2 space-y-1">
+                @foreach($m->files as $f)
+                    <li>
+                        @php
+                            // Manually construct the Cloudflare R2 URL
+                            $fileUrl = env('CLOUDFLARE_R2_URL') . '/' . $f->pdf_path;
+                        @endphp
+                        <a href="{{ $fileUrl }}" target="_blank"
+                           class="text-xs text-blue-600 dark:text-blue-400 hover:underline break-words">
+                            📄 {{ $f->original_name ?? basename($f->pdf_path ?? 'file.pdf') }}
+                        </a>
+                    </li>
                 @endforeach
+            </ul>
+        @else
+            <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Belum ada file PDF.</p>
+        @endif
+    </div>
+@endforeach
+
               </div>
             @else
               <p class="text-xs text-slate-500 dark:text-slate-400">Belum ada materi pada CLO ini.</p>

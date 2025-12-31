@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   'files' => $m->files
                     ? $m->files->map(fn($f) => [
                         'id' => $f->id,
-                        'download_url' => $f->download_url,
+                        'download_url' => env('CLOUDFLARE_R2_URL') . '/' . $f->pdf_path,
                         'pdf_path' => $f->pdf_path,
                       ])->values()
                     : [],

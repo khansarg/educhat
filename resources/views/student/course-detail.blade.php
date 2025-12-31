@@ -67,11 +67,13 @@
 @else
   <div class="shrink-0 flex flex-col items-end gap-1">
     @foreach($m->files as $f)
-      @php
-        $url = Storage::url($f->pdf_path); // This should generate the correct link
+     @php
+    // Manually construct the URL for Cloudflare R2
+    $url = env('CLOUDFLARE_R2_URL') . '/' . $f->pdf_path;  // Build the URL
 
-        $label = $f->name ?? 'PDF';
-      @endphp
+    $label = $f->name ?? 'PDF';  // Fallback to 'PDF' if no name
+@endphp
+
       <a href="{{ $url }}" target="_blank"
          class="text-xs font-medium text-[#B8352E] hover:underline">
         {{ $label }}
