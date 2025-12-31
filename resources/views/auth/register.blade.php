@@ -33,8 +33,9 @@
         <div class="text-xl font-semibold text-slate-900">&lt;/&gt;</div>
     </header>
 
-    <main class="w-full flex justify-center px-10 py-6">
-        <div class="flex w-full max-w-7xl items-center justify-between">
+    <main class="w-full min-h-[calc(100vh-64px)] flex items-center justify-center px-10">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center max-w-6xl w-full">
+
 
             {{-- LEFT: Robot Illustration --}}
             <div class="flex-1 flex justify-center">
