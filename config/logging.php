@@ -54,7 +54,8 @@ return [
 
         'stack' => [
             'driver' => 'stack',
-            'channels' => explode(',', (string) env('LOG_STACK', 'single')),
+            // Use stderr for Cloud Run, single for local development
+            'channels' => explode(',', (string) env('LOG_STACK', env('APP_ENV') === 'production' ? 'stderr' : 'single')),
             'ignore_exceptions' => false,
         ],
 
