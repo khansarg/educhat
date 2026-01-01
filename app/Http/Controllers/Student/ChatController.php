@@ -41,7 +41,7 @@ class ChatController extends Controller
             $session = ChatSession::create([
                 'user_id' => $user->id,
                 'clo_id'  => $clo->id,
-                'title'   => ($course->name ?? 'Course') . ' - ' . ($clo->name ?? 'CLO'),
+                'title'   => ($course->name ?? 'Course') . ' - ' . ($clo->title ?? 'CLO'),
                 'last_activity_at' => now(), // pastikan kolom ada
             ]);
         }
@@ -73,10 +73,17 @@ class ChatController extends Controller
         $system = "Kamu adalah asisten pembelajaran untuk mahasiswa.
 Fokus hanya pada CLO berikut:
 Course: {$course->name}
-CLO: {$clo->name}
+CLO: {$clo->title}
 Deskripsi CLO: " . ($clo->summary ?? $clo->description ?? 'Tidak ada deskripsi') . "
 Jawab ringkas, jelas, dan edukatif dalam Bahasa Indonesia.
-Jika perlu gunakan poin bernomor/bullet agar rapi.";
+Jika perlu gunakan poin bernomor/bullet agar rapi.
+ATURAN KETAT (WAJIB DIPATUHI):
+1) Jawaban HARUS relevan langsung dengan CLO ini
+2) Jika pertanyaan TIDAK sesuai CLO ini, JANGAN menjawab materinya.
+3) Jika tidak sesuai, balas dengan format berikut saja:\n
+   'Maaf, pertanyaan itu di luar CLO ini ({$clo->title}).\n
+    Saya bisa bantu jika Anda bertanya tentang: <beri 3 contoh topik yang sesuai CLO>.
+4) Jangan memberi penjelasan tambahan di luar format penolakan itu.";
 
         // 4) Call OpenAI
         $res = Http::withToken(env('OPENAI_API_KEY'))
@@ -137,26 +144,50 @@ Jika perlu gunakan poin bernomor/bullet agar rapi.";
         'message' => $request->message,
     ]);
 
-    // history context
+    // ✅ history context: ambil 12 PESAN TERBARU, lalu urutkan lama -> baru
     $history = ChatMessage::where('chat_session_id', $session->id)
-        ->orderBy('created_at')
+        ->latest('created_at')
         ->take(12)
         ->get()
+        ->reverse()
+        ->values()
         ->map(function ($m) {
+            $role = in_array($m->sender, ['bot', 'assistant'], true) ? 'assistant' : 'user';
             return [
-                'role' => $m->sender === 'bot' ? 'assistant' : 'user',
+                'role' => $role,
                 'content' => $m->message,
             ];
         })
         ->toArray();
 
-    $system = "Kamu adalah asisten pembelajaran untuk mahasiswa.
+    $cloTitle = $clo->title ?? $clo->name ?? '-';
+    $courseName = $course->name ?? '-';
+    $cloDesc = $clo->summary ?? $clo->description ?? 'Tidak ada deskripsi';
+
+    $system = <<<SYS
+Kamu adalah asisten pembelajaran untuk mahasiswa.
+
 Fokus hanya pada CLO berikut:
-Course: " . ($course->name ?? '-') . "
-CLO: " . ($clo->name ?? '-') . "
-Deskripsi CLO: " . ($clo->summary ?? $clo->description ?? 'Tidak ada deskripsi') . "
+Course: {$courseName}
+CLO: {$cloTitle}
+Deskripsi CLO: {$cloDesc}
+
 Jawab ringkas, jelas, dan edukatif dalam Bahasa Indonesia.
-Jika perlu gunakan poin bernomor/bullet agar rapi.";
+Jika perlu gunakan poin bernomor/bullet agar rapi.
+
+ATURAN KETAT (WAJIB DIPATUHI):
+1) Jawaban HARUS relevan langsung dengan CLO ini.
+2) Jika pertanyaan TIDAK sesuai CLO ini, JANGAN menjawab materinya.
+3) Jika tidak sesuai, balas dengan format berikut saja (TANPA tambahan apa pun):
+
+Maaf, pertanyaan itu di luar CLO ini ({$cloTitle}).
+Saya bisa bantu jika Anda bertanya tentang:
+- <contoh topik 1 yang sesuai CLO>
+- <contoh topik 2 yang sesuai CLO>
+- <contoh topik 3 yang sesuai CLO>
+
+4) Jangan memberi penjelasan tambahan di luar format penolakan itu.
+SYS;
 
     $res = Http::withToken(env('OPENAI_API_KEY'))
         ->post('https://api.openai.com/v1/chat/completions', [
@@ -180,7 +211,7 @@ Jika perlu gunakan poin bernomor/bullet agar rapi.";
 
     ChatMessage::create([
         'chat_session_id' => $session->id,
-        'sender' => 'bot',
+        'sender' => 'bot', // ✅ konsisten, tapi kalau kamu mau tetap "bot" juga boleh
         'message' => $reply,
     ]);
 

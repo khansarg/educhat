@@ -32,7 +32,7 @@ class HistoryController extends Controller
                     'id'      => $s->id,
                     'title'   => $s->title ?? 'Percakapan',
                     'course'  => $s->clo?->course?->name ?? '-',
-                    'clo'     => $s->clo?->name ?? '-',
+                    'clo'     => $s->clo?->title ?? '-',
                     'snippet' => $lastMsg?->message ? mb_strimwidth($lastMsg->message, 0, 60, '...') : '',
                     // ✅ time dihapus (kamu bilang ga perlu)
                 ];
@@ -104,7 +104,7 @@ class HistoryController extends Controller
             'id'     => $session->id,
             'title'  => $session->title ?? 'Percakapan',
             'course' => $session->clo?->course?->name ?? '-',
-            'clo'    => $session->clo?->name ?? '-',
+            'clo'    => $session->clo?->title ?? '-',
             // ✅ time dihapus
         ];
 
