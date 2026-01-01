@@ -7,103 +7,117 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 use App\Models\ChatSession;
-use App\Models\ChatMessage;
 use App\Models\Course;
 
 class HistoryController extends Controller
 {
-   
+    private function sidebarCourses()
+    {
+        return Course::with('clos')->get();
+    }
 
-   public function index(Request $request): View
-{
-    $user = $request->user();
+    /**
+     * List sidebar sessions (mapped) for current user
+     */
+    private function listSessionsForSidebar($userId)
+    {
+        return ChatSession::where('user_id', $userId)
+            ->with(['clo.course', 'messages' => fn($q) => $q->latest()->limit(1)])
+            ->orderByDesc('updated_at')
+            ->get()
+            ->map(function ($s) {
+                $lastMsg = $s->messages->first();
 
-    $sessions = ChatSession::where('user_id', $user->id)
-        ->with(['clo.course', 'messages' => fn($q) => $q->latest()->limit(1)])
-        ->orderByDesc('updated_at')
-        ->get()
-        ->map(function ($s) {
-            $lastMsg = $s->messages->first();
+                return [
+                    'id'      => $s->id,
+                    'title'   => $s->title ?? 'Percakapan',
+                    'course'  => $s->clo?->course?->name ?? '-',
+                    'clo'     => $s->clo?->name ?? '-',
+                    'snippet' => $lastMsg?->message ? mb_strimwidth($lastMsg->message, 0, 60, '...') : '',
+                    // ✅ time dihapus (kamu bilang ga perlu)
+                ];
+            });
+    }
 
-            return [
-                'id'      => $s->id,
-                'title'   => $s->title ?? 'Percakapan',
-                'course'  => $s->clo?->course?->name ?? '-',
-                'clo'     => $s->clo?->name ?? '-',
-                'snippet' => $lastMsg?->message ? mb_strimwidth($lastMsg->message, 0, 60, '...') : '',
-                'time'    => optional($s->updated_at)->format('d M H:i'),
-            ];
-        });
+    /**
+     * Convert session messages to view format
+     */
+    private function mapMessages($session)
+    {
+        return $session->messages->map(fn($m) => [
+            'role' => $m->sender === 'bot' ? 'bot' : 'user',
+            'content' => $m->message,
+        ])->toArray();
+    }
 
-    $activeSession = $sessions->first() ?? [
-        'id' => null,
-        'title' => 'Pilih percakapan',
-        'course' => '-',
-        'clo' => '-',
-        'time' => null,
-    ];
+    public function index(Request $request): View
+    {
+        $user = $request->user();
 
-    $courses = Course::with('clos')->get();
+        $sessions = $this->listSessionsForSidebar($user->id);
 
-    return view('student.history', [
-        'courses' => $courses,          // ✅ penting biar course-list gak error
-        'sessions' => $sessions,
-        'activeSession' => $activeSession,
-        'messages' => [],
-        'infoText' => '',
-    ]);
-}
+        // ✅ auto pilih session terbaru (first) kalau ada
+        $activeId = $sessions->first()['id'] ?? null;
 
-public function show(Request $request, $id): View
-{
-    $user = $request->user();
+        $activeSession = $activeId
+            ? $sessions->first()
+            : [
+                'id' => null,
+                'title' => 'Pilih percakapan',
+                'course' => '-',
+                'clo' => '-',
+              ];
 
-    $session = ChatSession::where('user_id', $user->id)
-        ->with(['clo.course', 'messages' => fn($q) => $q->orderBy('id')])
-        ->findOrFail($id);
+        $messages = [];
+        $infoText = '';
 
-    $activeSession = [
-        'id'     => $session->id,
-        'title'  => $session->title ?? 'Percakapan',
-        'course' => $session->clo?->course?->name ?? '-',
-        'clo'    => $session->clo?->name ?? '-',
-        'time'   => optional($session->updated_at)->format('d M H:i'),
-    ];
+        // ✅ kalau ada active session, load full messages
+        if ($activeId) {
+            $session = ChatSession::where('user_id', $user->id)
+                ->with(['clo.course', 'messages' => fn($q) => $q->orderBy('id')])
+                ->findOrFail($activeId);
 
-    $sessions = ChatSession::where('user_id', $user->id)
-        ->with(['clo.course', 'messages' => fn($q) => $q->latest()->limit(1)])
-        ->orderByDesc('updated_at')
-        ->get()
-        ->map(function ($s) {
-            $lastMsg = $s->messages->first();
-            return [
-                'id'      => $s->id,
-                'title'   => $s->title ?? 'Percakapan',
-                'course'  => $s->clo?->course?->name ?? '-',
-                'clo'     => $s->clo?->name ?? '-',
-                'snippet' => $lastMsg?->message ? mb_strimwidth($lastMsg->message, 0, 60, '...') : '',
-                'time'    => optional($s->updated_at)->format('d M H:i'),
-            ];
-        });
+            $messages = $this->mapMessages($session);
+            $infoText = $session->clo?->summary ?? $session->clo?->description ?? 'Tidak ada info.';
+        }
 
-    $messages = $session->messages->map(fn($m) => [
-        'role' => $m->sender === 'bot' ? 'bot' : 'user',
-        'content' => $m->message,
-    ])->toArray();
+        return view('student.history', [
+            'courses' => $this->sidebarCourses(),
+            'sessions' => $sessions,
+            'activeSession' => $activeSession,
+            'messages' => $messages,   // ✅ sekarang tidak kosong kalau ada session
+            'infoText' => $infoText,
+        ]);
+    }
 
-    $courses = Course::with('clos')->get();
+    public function show(Request $request, $id): View
+    {
+        $user = $request->user();
 
-    $infoText = $session->clo?->summary ?? $session->clo?->description ?? 'Tidak ada info.';
+        $session = ChatSession::where('user_id', $user->id)
+            ->with(['clo.course', 'messages' => fn($q) => $q->orderBy('id')])
+            ->findOrFail($id);
 
-    return view('student.history', [
-        'courses' => $courses,          // ✅ konsisten
-        'sessions' => $sessions,
-        'activeSession' => $activeSession,
-        'messages' => $messages,
-        'infoText' => $infoText,        // ✅ kalau history.blade pakai ini
-    ]);
-}
+        $sessions = $this->listSessionsForSidebar($user->id);
 
+        $activeSession = [
+            'id'     => $session->id,
+            'title'  => $session->title ?? 'Percakapan',
+            'course' => $session->clo?->course?->name ?? '-',
+            'clo'    => $session->clo?->name ?? '-',
+            // ✅ time dihapus
+        ];
 
+        $messages = $this->mapMessages($session);
 
+        $infoText = $session->clo?->summary ?? $session->clo?->description ?? 'Tidak ada info.';
+
+        return view('student.history', [
+            'courses' => $this->sidebarCourses(),
+            'sessions' => $sessions,
+            'activeSession' => $activeSession,
+            'messages' => $messages,
+            'infoText' => $infoText,
+        ]);
+    }
 }

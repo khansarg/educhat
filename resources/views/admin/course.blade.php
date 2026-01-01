@@ -232,6 +232,32 @@
   </div>
 </div>
 
+{{-- ================= MODAL CONFIRM DELETE MATERI ================= --}}
+<div id="confirmDeleteMateriModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+  <div id="confirmDeleteMateriOverlay" class="absolute inset-0 bg-black/40"></div>
+
+  <div class="relative bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md p-6 z-10 border border-slate-200 dark:border-slate-800">
+    <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-50">Hapus Materi?</h2>
+
+    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">
+      Materi <span id="materiDeleteName" class="font-semibold text-slate-900 dark:text-slate-50">ini</span> akan dihapus beserta file di dalamnya.
+      <span class="font-semibold text-rose-600">Aksi ini tidak bisa dibatalkan.</span>
+    </p>
+
+    <div class="mt-6 flex justify-end gap-3">
+      <button id="cancelDeleteMateri"
+              class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200">
+        Batal
+      </button>
+
+      <button id="confirmDeleteMateri"
+              class="px-4 py-2 rounded-xl bg-rose-600 text-white text-sm hover:bg-rose-700 disabled:opacity-60">
+        Ya, Hapus
+      </button>
+    </div>
+  </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -378,9 +404,16 @@ document.addEventListener('DOMContentLoaded', () => {
         ? `<a href="${firstUrl}" target="_blank" class="text-blue-600 hover:underline">${fileCount} file (lihat)</a>`
         : `<span class="text-slate-400">Belum ada file</span>`;
 
+      const titleEsc = String(m.title ?? '-')
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'","&#039;");
+
       return `
         <tr class="border-t border-slate-200 dark:border-slate-800">
-          <td class="p-3 text-slate-700 dark:text-slate-200">${m.title ?? '-'}</td>
+          <td class="p-3 text-slate-700 dark:text-slate-200">${titleEsc}</td>
           <td class="p-3">${fileCell}</td>
           <td class="p-3">
             <div class="flex gap-3">
@@ -433,27 +466,65 @@ document.addEventListener('DOMContentLoaded', () => {
   if (activeCloId) setActiveClo(activeCloId);
   syncDeleteCloBtn();
 
-  // Delete materi
-  document.getElementById('materiTableBody')?.addEventListener('click', async (e) => {
+  // =========================
+  // DELETE MATERI (pakai modal)
+  // =========================
+  const confirmDeleteMateriModal = document.getElementById('confirmDeleteMateriModal');
+  const confirmDeleteMateriOverlay = document.getElementById('confirmDeleteMateriOverlay');
+  const cancelDeleteMateri = document.getElementById('cancelDeleteMateri');
+  const confirmDeleteMateri = document.getElementById('confirmDeleteMateri');
+  const materiDeleteName = document.getElementById('materiDeleteName');
+
+  let pendingDeleteMateriId = null;
+
+  function openDeleteMateriModal({ id, title }) {
+    pendingDeleteMateriId = id;
+    if (materiDeleteName) materiDeleteName.textContent = title || 'ini';
+    openModal(confirmDeleteMateriModal);
+  }
+
+  function closeDeleteMateriModal() {
+    pendingDeleteMateriId = null;
+    closeModal(confirmDeleteMateriModal);
+  }
+
+  document.getElementById('materiTableBody')?.addEventListener('click', (e) => {
     const btn = e.target.closest('.js-del-materi');
     if (!btn) return;
 
     const materialId = btn.dataset.id;
     if (!materialId) return;
 
-    if (!confirm('Hapus materi ini?')) return; // (kalau mau, ini juga bisa dibuat modal)
+    const cloData = clos.find(c => String(c.id) === String(activeCloId));
+    const material = cloData?.materials?.find(m => String(m.id) === String(materialId));
+    const title = material?.title || 'materi ini';
+
+    openDeleteMateriModal({ id: materialId, title });
+  });
+
+  cancelDeleteMateri?.addEventListener('click', closeDeleteMateriModal);
+  confirmDeleteMateriOverlay?.addEventListener('click', closeDeleteMateriModal);
+
+  confirmDeleteMateri?.addEventListener('click', async () => {
+    if (!pendingDeleteMateriId) return;
 
     try {
-      await jsonFetch(`/admin/material/${materialId}`, { method: 'DELETE' });
+      confirmDeleteMateri.disabled = true;
+
+      await jsonFetch(`/admin/material/${pendingDeleteMateriId}`, { method: 'DELETE' });
 
       const cloData = clos.find(c => String(c.id) === String(activeCloId));
       if (cloData?.materials) {
-        cloData.materials = cloData.materials.filter(m => String(m.id) !== String(materialId));
+        cloData.materials = cloData.materials.filter(m => String(m.id) !== String(pendingDeleteMateriId));
       }
+
       renderMateriTable();
+      closeDeleteMateriModal();
     } catch (err) {
       console.error(err);
       alert('Gagal hapus materi: ' + err.message);
+    } finally {
+      confirmDeleteMateri.disabled = false;
     }
   });
 
@@ -714,6 +785,7 @@ document.addEventListener('DOMContentLoaded', () => {
     closeModal(editCourseModal);
     closeModal(confirmDeleteCourseModal);
     closeModal(confirmDeleteCloModal);
+    closeDeleteMateriModal();
   });
 });
 </script>

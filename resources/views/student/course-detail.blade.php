@@ -12,7 +12,10 @@
 @endsection
 
 @section('content')
-<div class="max-w-5xl mx-auto bg-white dark:bg-slate-900 rounded-[28px] shadow-[0_20px_50px_rgba(15,23,42,0.08)] p-10">
+<div class="flex-1 min-h-0 overflow-y-auto px-6 py-6">
+  <div class="max-w-5xl mx-auto bg-white dark:bg-slate-900 rounded-[28px]
+              shadow-[0_20px_50px_rgba(15,23,42,0.08)] p-10">
+
 
     <h1 class="text-2xl font-semibold flex items-center gap-2 mb-6 text-slate-900 dark:text-slate-100">
         <span class="text-[#B8352E]">&lt;/&gt;</span>
@@ -96,5 +99,7 @@
        
     </div>
 
+</div>
+</div>
 </div>
 @endsection

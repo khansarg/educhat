@@ -28,16 +28,14 @@
       (isset($nameParts[1]) ? substr($nameParts[1], 0, 1) : substr($nameParts[0], 1, 1))
   );
 
+  // ✅ activeSession sebaiknya dari controller (auto pilih latest)
   $activeId    = $activeSession['id'] ?? null;
   $activeTitle = $activeSession['title'] ?? 'Riwayat Percakapan';
-  $activeTime  = $activeSession['time'] ?? '';
 @endphp
-
 
 <div class="flex gap-6 h-[calc(100vh-5rem)] min-h-0">
 
   {{-- ====== CENTER: HISTORY CHAT VIEW ====== --}}
- 
   <div class="flex flex-col flex-1 min-w-0 min-h-0">
 
     {{-- HEADER --}}
@@ -55,29 +53,35 @@
               {{ $activeTitle }}
             </p>
           </div>
-          <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
-            {{ $activeTime }}
-          </p>
+
+          {{-- ✅ WAKTU DIHAPUS (tidak ditampilkan lagi) --}}
+          {{-- <p class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ $activeTime }}</p> --}}
         </div>
       </div>
 
+      {{-- optional: indikator session --}}
       <div class="text-xs text-slate-400 flex-shrink-0">
         @if($activeId) Session #{{ $activeId }} @else Pilih sesi @endif
       </div>
     </header>
 
-
     <section class="flex-1 bg-transparent rounded-3xl flex flex-col min-h-0">
 
-  
+      {{-- MESSAGES --}}
       <div class="flex-1 min-h-0 overflow-y-auto pr-2 space-y-4 pt-2" id="chatMessages">
         @if($activeId === null)
           <div class="h-full flex items-center justify-center">
             <p class="text-sm text-slate-500 dark:text-slate-400">
-              Pilih sesi di sebelah kiri untuk melihat percakapan.
+              Belum ada sesi. Mulai chat dulu ya.
             </p>
           </div>
         @else
+          @php
+            // ✅ Pastikan $messages dikirim dari controller.
+            // Kalau ternyata null, amanin jadi array kosong.
+            $messages = $messages ?? [];
+          @endphp
+
           @forelse($messages as $m)
             @php
               $role = $m['role'] ?? 'user';
@@ -86,20 +90,18 @@
             @endphp
 
             @if($isBot)
-              <div class="flex items-start gap-3">
+              <div class="flex items-end gap-3">
                 <div class="w-9 h-9 rounded-full bg-[#B8352E] flex items-center justify-center text-white text-sm flex-shrink-0">
                   🤖
                 </div>
-                <div class="max-w-xl rounded-2xl bg-white dark:bg-slate-900 shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-100">
-                  <div class="prose prose-sm max-w-none dark:prose-invert md-content" data-md="1">
-                    {{ $content }}
-                  </div>
+                <div class="w-full max-w-[720px] rounded-2xl bg-white dark:bg-slate-900 shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-100">
+                  <div class="md-content prose prose-sm max-w-none dark:prose-invert" data-md="1">{{ $content }}</div>
                 </div>
               </div>
             @else
-              <div class="flex items-start justify-end gap-3">
-                <div class="max-w-xl rounded-2xl bg-[#B8352E] text-white shadow-sm px-4 py-3 text-sm">
-                  <div class="whitespace-pre-wrap">{{ $content }}</div>
+              <div class="flex items-end justify-end gap-3">
+                <div class="w-full max-w-[720px] rounded-2xl bg-[#B8352E] text-white shadow-sm px-4 py-3 text-sm">
+                  <div class="whitespace-pre-wrap break-words">{{ $content }}</div>
                 </div>
                 <div class="w-9 h-9 rounded-full bg-slate-300 flex items-center justify-center text-xs font-semibold flex-shrink-0">
                   {{ $initials }}
@@ -116,9 +118,8 @@
         @endif
       </div>
 
-  
+      {{-- INPUT --}}
       <div class="mt-4 sticky bottom-0 z-10">
-        {{-- background blur biar keliatan bagus di dark --}}
         <div class="pb-2 pt-2 bg-[#F4F7FB]/90 dark:bg-slate-950/90 backdrop-blur rounded-3xl">
 
           <div class="flex flex-wrap gap-3 mb-3">
@@ -146,14 +147,15 @@
               id="historyChatInput"
               class="flex-1 resize-none border-none focus:ring-0 focus:outline-none text-sm bg-transparent placeholder:text-slate-400 dark:placeholder:text-slate-500"
               rows="2"
-              placeholder="{{ $activeId ? 'Ketik untuk melanjutkan percakapan...' : 'Pilih sesi dulu untuk chat.' }}"
+              placeholder="{{ $activeId ? 'Ketik untuk melanjutkan percakapan...' : 'Mulai chat dulu untuk punya sesi.' }}"
               @if(!$activeId) disabled @endif
             ></textarea>
 
             <button
               id="historySendBtn"
               type="button"
-              class="w-10 h-10 rounded-full bg-[#B8352E] flex items-center justify-center text-white shadow-md hover:bg-[#8f251f] disabled:opacity-60">
+              class="w-10 h-10 rounded-full bg-[#B8352E] flex items-center justify-center text-white shadow-md hover:bg-[#8f251f] disabled:opacity-60"
+              @if(!$activeId) disabled @endif>
               <span class="text-sm">↑</span>
             </button>
           </div>
@@ -177,6 +179,10 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+  // ✅ anti double bind
+  if (window.__HISTORY_BIND__) return;
+  window.__HISTORY_BIND__ = true;
+
   const activeId = @json($activeId);
   const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
 
@@ -185,21 +191,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("historySendBtn");
   const hint = document.getElementById("historySendingHint");
 
-  // render markdown existing messages
+  let isSending = false;
+
+  const renderMarkdown = (md) => {
+    const raw = window.marked ? window.marked.parse(md ?? "") : (md ?? "");
+    return window.DOMPurify ? window.DOMPurify.sanitize(raw) : raw;
+  };
+
+  // ✅ render markdown existing messages
   document.querySelectorAll(".md-content[data-md='1']").forEach(el => {
     const md = el.textContent ?? "";
-    const html = window.marked ? window.marked.parse(md) : md;
-    el.innerHTML = window.DOMPurify ? window.DOMPurify.sanitize(html) : html;
+    el.innerHTML = renderMarkdown(md);
+    el.classList.add("prose", "prose-sm", "max-w-none", "dark:prose-invert");
   });
 
-
-  if (chatMessages) {
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
+  if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
 
   const setSending = (v) => {
-    if (hint) hint.classList.toggle("hidden", !v);
+    isSending = v;
+    hint?.classList.toggle("hidden", !v);
     if (btn) btn.disabled = v;
+    if (input) input.disabled = v;
   };
 
   const escapeHtml = (str) => String(str).replace(/[&<>"']/g, (m) => ({
@@ -207,48 +219,44 @@ document.addEventListener("DOMContentLoaded", () => {
   }[m]));
 
   const appendUser = (text) => {
-    chatMessages.insertAdjacentHTML("beforeend", `
-      <div class="flex items-start justify-end gap-3">
-        <div class="max-w-xl rounded-2xl bg-[#B8352E] text-white shadow-sm px-4 py-3 text-sm">
-          <div class="whitespace-pre-wrap">${escapeHtml(text)}</div>
+    chatMessages?.insertAdjacentHTML("beforeend", `
+      <div class="flex items-end justify-end gap-3">
+        <div class="w-full max-w-[720px] rounded-2xl bg-[#B8352E] text-white shadow-sm px-4 py-3 text-sm">
+          <div class="whitespace-pre-wrap break-words">${escapeHtml(text)}</div>
         </div>
-        <div class="w-9 h-9 rounded-full bg-slate-300 flex items-center justify-center text-xs font-semibold">
+        <div class="w-9 h-9 rounded-full bg-slate-300 flex items-center justify-center text-xs font-semibold flex-shrink-0">
           {{ $initials }}
         </div>
       </div>
     `);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
   };
 
-  const appendBotMarkdown = (mdText) => {
-    const htmlRaw = window.marked ? window.marked.parse(mdText ?? "") : (mdText ?? "");
-    const html = window.DOMPurify ? window.DOMPurify.sanitize(htmlRaw) : htmlRaw;
-
-    chatMessages.insertAdjacentHTML("beforeend", `
-      <div class="flex items-start gap-3">
-        <div class="w-9 h-9 rounded-full bg-[#B8352E] flex items-center justify-center text-white text-sm">🤖</div>
-        <div class="max-w-xl rounded-2xl bg-white dark:bg-slate-900 shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-100">
+  const appendBot = (mdText) => {
+    const html = renderMarkdown(mdText);
+    chatMessages?.insertAdjacentHTML("beforeend", `
+      <div class="flex items-end gap-3">
+        <div class="w-9 h-9 rounded-full bg-[#B8352E] flex items-center justify-center text-white text-sm flex-shrink-0">🤖</div>
+        <div class="w-full max-w-[720px] rounded-2xl bg-white dark:bg-slate-900 shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-100">
           <div class="prose prose-sm max-w-none dark:prose-invert">
             ${html}
           </div>
         </div>
       </div>
     `);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
   };
 
   async function send(messageOverride) {
     if (!activeId) return;
-    if (!csrf) {
-      appendBotMarkdown("CSRF token tidak ditemukan. Pastikan layout punya meta csrf-token.");
-      return;
-    }
+    if (isSending) return;
+    if (!csrf) return appendBot("CSRF token tidak ditemukan. Pastikan layout punya meta csrf-token.");
 
-    const msg = (messageOverride ?? input.value).trim();
+    const msg = (messageOverride ?? input?.value ?? "").trim();
     if (!msg) return;
 
     appendUser(msg);
-    input.value = "";
+    if (input) input.value = "";
     setSending(true);
 
     try {
@@ -266,17 +274,18 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await res.json().catch(() => null);
 
       if (!res.ok) {
-        appendBotMarkdown(data?.message || "Terjadi error.");
+        appendBot(data?.message || "Terjadi error.");
         console.error("History ask error:", res.status, data);
         return;
       }
 
-      appendBotMarkdown(data?.reply || "Maaf, aku belum bisa menjawab.");
+      appendBot(data?.reply || "Maaf, aku belum bisa menjawab.");
     } catch (e) {
       console.error(e);
-      appendBotMarkdown("Gagal terhubung ke server.");
+      appendBot("Gagal terhubung ke server.");
     } finally {
       setSending(false);
+      input?.focus();
     }
   }
 
@@ -289,8 +298,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  document.querySelectorAll(".suggest-msg").forEach(b => {
-    b.addEventListener("click", () => send(b.innerText));
+  // ✅ Suggest: event delegation (anti double bind)
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest(".suggest-msg");
+    if (!b) return;
+    if (b.disabled) return;
+
+    if (b.dataset.lock === "1") return;
+    b.dataset.lock = "1";
+
+    send(b.innerText).finally(() => {
+      b.dataset.lock = "0";
+    });
   });
 });
 </script>
