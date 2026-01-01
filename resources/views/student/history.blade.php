@@ -120,7 +120,7 @@
             <button type="button"
               class="suggest-msg px-5 py-2 rounded-full text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-60"
               @if(!$activeId) disabled @endif>
-              Jelaskan konsep dari {{ $clo->title }}
+              Jelaskan konsep dari {{  $activeSession['clo'] ?? 'materi ini' }}
             </button>
 
             <button type="button"
