@@ -13,7 +13,7 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background: #F5F9FF;
+            background: #F5F9FD;
         }
         .topbar {
             width: 100%;

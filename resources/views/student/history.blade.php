@@ -61,7 +61,7 @@
       </div>
     </header>
 
-    <section class="flex-1 bg-transparent rounded-3xl flex flex-col min-h-0">
+    <section class="flex-1 bg-[#F5F9FD] rounded-3xl flex flex-col min-h-0">
 
       {{-- MESSAGES --}}
       <div class="flex-1 min-h-0 overflow-y-auto pr-2 space-y-4 pt-2" id="chatMessages">

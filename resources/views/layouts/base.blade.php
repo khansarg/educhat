@@ -18,7 +18,7 @@
 </head>
 
 <body
-    class="min-h-screen font-sans bg-[#F4F7FB] text-slate-900
+    class="min-h-screen font-sans bg-[#F5F9FD] text-slate-900
            dark:bg-slate-950 dark:text-slate-100">
 
     {{-- GLOBAL APP WRAPPER --}}
