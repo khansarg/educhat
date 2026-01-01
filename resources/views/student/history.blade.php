@@ -28,14 +28,14 @@
       (isset($nameParts[1]) ? substr($nameParts[1], 0, 1) : substr($nameParts[0], 1, 1))
   );
 
-  // ✅ activeSession sebaiknya dari controller (auto pilih latest)
   $activeId    = $activeSession['id'] ?? null;
   $activeTitle = $activeSession['title'] ?? 'Riwayat Percakapan';
+
+  $messages = $messages ?? [];
 @endphp
 
 <div class="flex gap-6 h-[calc(100vh-5rem)] min-h-0">
 
-  {{-- ====== CENTER: HISTORY CHAT VIEW ====== --}}
   <div class="flex flex-col flex-1 min-w-0 min-h-0">
 
     {{-- HEADER --}}
@@ -53,13 +53,9 @@
               {{ $activeTitle }}
             </p>
           </div>
-
-          {{-- ✅ WAKTU DIHAPUS (tidak ditampilkan lagi) --}}
-          {{-- <p class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ $activeTime }}</p> --}}
         </div>
       </div>
 
-      {{-- optional: indikator session --}}
       <div class="text-xs text-slate-400 flex-shrink-0">
         @if($activeId) Session #{{ $activeId }} @else Pilih sesi @endif
       </div>
@@ -76,12 +72,6 @@
             </p>
           </div>
         @else
-          @php
-            // ✅ Pastikan $messages dikirim dari controller.
-            // Kalau ternyata null, amanin jadi array kosong.
-            $messages = $messages ?? [];
-          @endphp
-
           @forelse($messages as $m)
             @php
               $role = $m['role'] ?? 'user';
@@ -94,15 +84,19 @@
                 <div class="w-9 h-9 rounded-full bg-[#B8352E] flex items-center justify-center text-white text-sm flex-shrink-0">
                   🤖
                 </div>
-                <div class="w-full max-w-[720px] rounded-2xl bg-white dark:bg-slate-900 shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-100">
+
+                {{-- ✅ bubble bot: inline-block + max width --}}
+                <div class="inline-block max-w-[78%] md:max-w-[720px] rounded-2xl bg-white dark:bg-slate-900 shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-100">
                   <div class="md-content prose prose-sm max-w-none dark:prose-invert" data-md="1">{{ $content }}</div>
                 </div>
               </div>
             @else
               <div class="flex items-end justify-end gap-3">
-                <div class="w-full max-w-[720px] rounded-2xl bg-[#B8352E] text-white shadow-sm px-4 py-3 text-sm">
+                {{-- ✅ bubble user: inline-block + max width --}}
+                <div class="inline-block max-w-[78%] md:max-w-[720px] rounded-2xl bg-[#B8352E] text-white shadow-sm px-4 py-3 text-sm">
                   <div class="whitespace-pre-wrap break-words">{{ $content }}</div>
                 </div>
+
                 <div class="w-9 h-9 rounded-full bg-slate-300 flex items-center justify-center text-xs font-semibold flex-shrink-0">
                   {{ $initials }}
                 </div>
@@ -169,7 +163,6 @@
 
     </section>
   </div>
-
 </div>
 @endsection
 
@@ -198,7 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return window.DOMPurify ? window.DOMPurify.sanitize(raw) : raw;
   };
 
-  // ✅ render markdown existing messages
+  // ✅ render markdown existing
   document.querySelectorAll(".md-content[data-md='1']").forEach(el => {
     const md = el.textContent ?? "";
     el.innerHTML = renderMarkdown(md);
@@ -221,7 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const appendUser = (text) => {
     chatMessages?.insertAdjacentHTML("beforeend", `
       <div class="flex items-end justify-end gap-3">
-        <div class="w-full max-w-[720px] rounded-2xl bg-[#B8352E] text-white shadow-sm px-4 py-3 text-sm">
+        <div class="inline-block max-w-[78%] md:max-w-[720px] rounded-2xl bg-[#B8352E] text-white shadow-sm px-4 py-3 text-sm">
           <div class="whitespace-pre-wrap break-words">${escapeHtml(text)}</div>
         </div>
         <div class="w-9 h-9 rounded-full bg-slate-300 flex items-center justify-center text-xs font-semibold flex-shrink-0">
@@ -237,7 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
     chatMessages?.insertAdjacentHTML("beforeend", `
       <div class="flex items-end gap-3">
         <div class="w-9 h-9 rounded-full bg-[#B8352E] flex items-center justify-center text-white text-sm flex-shrink-0">🤖</div>
-        <div class="w-full max-w-[720px] rounded-2xl bg-white dark:bg-slate-900 shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-100">
+        <div class="inline-block max-w-[78%] md:max-w-[720px] rounded-2xl bg-white dark:bg-slate-900 shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-100">
           <div class="prose prose-sm max-w-none dark:prose-invert">
             ${html}
           </div>
@@ -298,11 +291,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ✅ Suggest: event delegation (anti double bind)
+  // ✅ Suggest: event delegation + lock (anti double click)
   document.addEventListener("click", (e) => {
     const b = e.target.closest(".suggest-msg");
-    if (!b) return;
-    if (b.disabled) return;
+    if (!b || b.disabled) return;
 
     if (b.dataset.lock === "1") return;
     b.dataset.lock = "1";
