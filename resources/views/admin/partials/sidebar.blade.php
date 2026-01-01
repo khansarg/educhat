@@ -33,7 +33,7 @@
 
         <button id="darkModeToggle"
                 class="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800">
-            <span class="text-lg">🌙</span>
+            <i class="fa-regular fa-moon"></i>
         </button>
 
         <div class="relative">

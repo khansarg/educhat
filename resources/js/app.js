@@ -1,35 +1,55 @@
-// app.js (VERSI FINAL - SAFE GUARDS + DROPZONE SINGLE)
+// app.js (FINAL - GLOBAL DARKMODE DELEGATION + SAFE GUARDS + DROPZONE SINGLE)
 
-document.addEventListener('DOMContentLoaded', () => {
+// =========================
+// DARK MODE (GLOBAL + DELEGATION)
+// - Works on admin + student
+// - Works even if DOM is replaced / rendered later (Turbo/Livewire/partials)
+// =========================
+(() => {
   const html = document.documentElement;
 
-  console.log('APP.JS LOADED');
+  // apply saved
+  const saved = localStorage.getItem("theme");
+  if (saved === "dark") html.classList.add("dark");
+  if (saved === "light") html.classList.remove("dark");
+
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest("#darkModeToggle")) return;
+
+    const willBeDark = !html.classList.contains("dark");
+
+    // ✅ SET EXPLICIT (bukan toggle)
+    if (willBeDark) {
+      html.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+      console.log("✅ THEME NOW: dark");
+    } else {
+      html.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+      console.log("✅ THEME NOW: light");
+    }
+  });
+})();
+
+
+
+// =========================
+// DOM READY FEATURES (safe to bind after DOM is ready)
+// =========================
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("APP.JS LOADED");
 
   // =========================
-  // DARK MODE
+  // TOGGLE RIGHT SIDEBAR (CLO INFO)
   // =========================
-  const toggle = document.getElementById('darkModeToggle');
-  const saved = localStorage.getItem('theme');
+  const infoToggleBtn = document.getElementById("infoToggleBtn");
+  const infoPanel = document.getElementById("cloInfoPanel");
 
-  if (saved === 'dark') html.classList.add('dark');
-  else if (saved === 'light') html.classList.remove('dark');
-
-  if (toggle) {
-    toggle.addEventListener('click', () => {
-      const isDark = html.classList.toggle('dark');
-      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  if (infoToggleBtn && infoPanel) {
+    infoToggleBtn.addEventListener("click", () => {
+      infoPanel.classList.toggle("hidden");
     });
   }
-
-  // TOGGLE RIGHT SIDEBAR
-  const infoToggleBtn = document.getElementById('infoToggleBtn');
-  const infoPanel = document.getElementById('cloInfoPanel');
- if (infoToggleBtn && infoPanel) {
-  infoToggleBtn.addEventListener('click', () => {
-    infoPanel.classList.toggle('hidden');
-  });
-}
-
 
   // =========================
   // PROFILE POPUP
@@ -38,19 +58,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const profilePopup = document.getElementById("profilePopup");
   const profileOverlay = document.getElementById("profileOverlay");
 
-  // Jangan return keluar dari whole app.js, cukup skip fitur ini
   if (profileBtn && profilePopup && profileOverlay) {
     const open = () => {
       profilePopup.classList.remove("hidden");
       profileOverlay.classList.remove("hidden");
+      profileOverlay.classList.remove("pointer-events-none");
     };
 
     const close = () => {
       profilePopup.classList.add("hidden");
       profileOverlay.classList.add("hidden");
+      profileOverlay.classList.add("pointer-events-none");
     };
 
     const isOpen = () => !profilePopup.classList.contains("hidden");
+
+    // Make overlay safe by default
+    profileOverlay.classList.add("pointer-events-none");
 
     profileBtn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -69,75 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.key === "Escape") close();
     });
   }
-
-//   // =========================
-//   // CHAT (SAFE)
-//   // =========================
-//   const chatInput = document.getElementById("chatInput");
-//   const sendBtn = document.getElementById("sendBtn");
-//   const chatMessages = document.getElementById("chatMessages");
-
-//   if (chatInput && chatMessages) {
-//     function sendMessage() {
-//       const text = chatInput.value.trim();
-//       if (!text) return;
-
-//       chatMessages.innerHTML += `
-//         <div class="flex items-start justify-end gap-3">
-//           <div class="max-w-xl rounded-2xl bg-[#B8352E] text-white shadow-sm px-4 py-3 text-sm">
-//             <p>${text}</p>
-//           </div>
-//           <div class="w-9 h-9 rounded-full bg-slate-300 flex items-center justify-center text-xs font-semibold">
-//             U
-//           </div>
-//         </div>
-//       `;
-
-//       chatInput.value = "";
-//       chatMessages.scrollTop = chatMessages.scrollHeight;
-
-//       setTimeout(() => {
-//         chatMessages.innerHTML += `
-//           <div class="flex items-start gap-3">
-//             <div class="w-9 h-9 rounded-full bg-[#B8352E] flex items-center justify-center text-white text-sm">
-//               🤖
-//             </div>
-//             <div class="max-w-xl rounded-2xl bg-white dark:bg-slate-900 shadow-sm px-4 py-3 text-sm text-slate-800 dark:text-slate-100">
-//               <p><span class="font-semibold">EduChat:</span> Nanti chatbot akan menjawab, sekarang belum terhubung ke backend :)</p>
-//             </div>
-//           </div>
-//         `;
-//         chatMessages.scrollTop = chatMessages.scrollHeight;
-//       }, 500);
-//     }
-
-//     chatInput.addEventListener("keydown", (e) => {
-//       if (e.key === "Enter" && !e.shiftKey) {
-//         e.preventDefault();
-//         sendMessage();
-//       }
-//     });
-
-//     if (sendBtn) sendBtn.addEventListener("click", sendMessage);
-
-//     // Suggest buttons (SAFE)
-//     document.querySelectorAll(".suggest-msg").forEach(btn => {
-//       btn.addEventListener("click", () => {
-//         const text = btn.innerText.trim();
-//         if (!text) return;
-//         chatInput.value = text;
-
-//         btn.addEventListener("click", () => {
-//   const text = btn.innerText.trim();
-//   if (!text) return;
-
-//   chatInput.value = text;
-//   sendMessage(); // 🔥 langsung kirim
-// });
-
-//       });
-//     });
-//   }
 
   // =========================
   // DROPZONE (SINGLE SOURCE OF TRUTH)
@@ -181,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fileGrid.appendChild(item);
       });
 
-      fileGrid.querySelectorAll("[data-remove]").forEach(btn => {
+      fileGrid.querySelectorAll("[data-remove]").forEach((btn) => {
         btn.addEventListener("click", () => {
           const i = parseInt(btn.getAttribute("data-remove"), 10);
           filesState.splice(i, 1);
@@ -189,18 +144,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       });
 
-      // expose for other scripts (materi-create blade) if needed:
+      // expose for other scripts if needed:
       window.__FILES_STATE__ = filesState;
     };
 
     const addFiles = (fileList) => {
       const incoming = Array.from(fileList || []);
-      const pdfs = incoming.filter(f =>
-        f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")
+      const pdfs = incoming.filter(
+        (f) => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf")
       );
+
       if (!pdfs.length) return;
 
-      pdfs.forEach(f => filesState.push(f));
+      pdfs.forEach((f) => filesState.push(f));
       render();
     };
 
@@ -230,11 +186,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // =========================
-  // (Optional) DOSEN summary editor blocks:
-  // Keep them, but also SAFE-GUARDED already by checks below.
+  // DOSEN: EDIT RINGKASAN MATERI (UMUM)
   // =========================
-
-  // ===== DOSEN: EDIT RINGKASAN MATERI (UMUM) =====
   const summaryEditBtn = document.getElementById("summaryEditBtn");
   const summarySaveBtn = document.getElementById("summarySaveBtn");
   const summaryCancelBtn = document.getElementById("summaryCancelBtn");
@@ -242,9 +195,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const summaryTextarea = document.getElementById("summaryTextarea");
   const summaryHint = document.getElementById("summaryHint");
 
-  if (summaryEditBtn && summarySaveBtn && summaryCancelBtn && summaryText && summaryTextarea) {
+  if (
+    summaryEditBtn &&
+    summarySaveBtn &&
+    summaryCancelBtn &&
+    summaryText &&
+    summaryTextarea
+  ) {
     const STORAGE_KEY = "dosen_summary_umum";
     const savedSum = localStorage.getItem(STORAGE_KEY);
+
     if (savedSum && savedSum.trim().length > 0) {
       summaryText.textContent = savedSum;
       summaryTextarea.value = savedSum;
@@ -289,7 +249,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ===== DOSEN: EDIT RINGKASAN PER CLO =====
+  // =========================
+  // DOSEN: EDIT RINGKASAN PER CLO
+  // =========================
   const cloSummaryEditBtn = document.getElementById("cloSummaryEditBtn");
   const cloSummarySaveBtn = document.getElementById("cloSummarySaveBtn");
   const cloSummaryCancelBtn = document.getElementById("cloSummaryCancelBtn");
@@ -298,7 +260,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const cloSummaryHint = document.getElementById("cloSummaryHint");
   const activeCloValue = document.getElementById("activeCloValue");
 
-  if (cloSummaryEditBtn && cloSummarySaveBtn && cloSummaryCancelBtn && cloSummaryText && cloSummaryTextarea && activeCloValue) {
+  if (
+    cloSummaryEditBtn &&
+    cloSummarySaveBtn &&
+    cloSummaryCancelBtn &&
+    cloSummaryText &&
+    cloSummaryTextarea &&
+    activeCloValue
+  ) {
     const clo = (activeCloValue.value || "1").toString();
     const STORAGE_KEY = `dosen_summary_clo_${clo}`;
 

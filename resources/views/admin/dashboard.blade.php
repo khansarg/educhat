@@ -3,13 +3,29 @@
 @section('title', 'Admin Dashboard - EduChat')
 
 @section('content')
-<div class="flex items-center justify-center min-h-[calc(100vh-6rem)]">
-    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-10 text-center max-w-md shadow-sm">
-        <img src="{{ asset('images/dashboard_background.png') }}" class="mx-auto mb-4 w-40" alt="empty">
-        <p class="text-sm text-slate-600 dark:text-slate-300">
-            Belum ada course yang dipilih.
+<div class="flex-1 flex items-center justify-center">
+    <div class="max-w-3xl w-full bg-white dark:bg-slate-900 rounded-[32px]
+        shadow-[0_22px_60px_rgba(15,23,42,0.10)]
+        px-16 py-12 flex flex-col items-center">
+        <div class="w-[420px] max-w-full mb-8">
+            <img
+                src="{{ asset('images/dashboard_background.png') }}"
+                alt="Ilustrasi tidak ada chat"
+                class="w-full h-auto object-contain select-none"
+                onerror="this.style.display='none';"
+            >
+        </div>
+        <div class="text-center">
+            <p class="text-sm font-semibold text-[#B8352E]">
+Belum ada course yang dipilih.
+            </p>
+<p class="text-sm text-slate-600 dark:text-slate-300">
+            
             Silakan pilih course di sidebar untuk mulai mengelola.
         </p>
+        </div>
+        
+        
     </div>
 </div>
 @endsection

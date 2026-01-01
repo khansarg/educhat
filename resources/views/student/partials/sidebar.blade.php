@@ -39,18 +39,14 @@
     {{-- Bottom icons: dark mode, language (optional), profile --}}
     <div class="mb-6 flex flex-col items-center gap-4 text-slate-400 dark:text-slate-300">
 
-        {{-- Dark mode toggle (match app.js id) --}}
         <button id="darkModeToggle"
                 class="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800">
-            <span class="text-lg">🌙</span>
+            <i class="fa-regular fa-moon"></i>
         </button>
 
-        {{-- Avatar + Popup Profile (match app.js ids) --}}
         <div class="relative">
-            {{-- overlay klik-luar --}}
             <div id="profileOverlay" class="fixed inset-0 bg-black/20 hidden z-40"></div>
 
-            {{-- tombol avatar --}}
             <button id="profileBtn"
                     type="button"
                     class="relative z-50 w-9 h-9 rounded-2xl bg-[#B8352E] flex items-center justify-center overflow-hidden
@@ -58,7 +54,6 @@
                 <span class="text-xs font-semibold text-white">{{ $initials }}</span>
             </button>
 
-            {{-- popup panel --}}
             <div id="profilePopup"
                  class="hidden z-50 absolute left-12 bottom-0 w-72
                         bg-white dark:bg-slate-900
@@ -99,24 +94,4 @@
     </div>
 </aside>
 
-@push('scripts')
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    const profileBtn = document.getElementById("profileBtn");
-    const profilePopup = document.getElementById("profilePopup");
-    const profileOverlay = document.getElementById("profileOverlay");
 
-    // Toggle profile popup when the profile button is clicked
-    profileBtn.addEventListener("click", function () {
-        profilePopup.classList.toggle("hidden");
-        profileOverlay.classList.toggle("hidden");
-    });
-
-    // Hide profile popup if user clicks outside of the popup
-    profileOverlay.addEventListener("click", function () {
-        profilePopup.classList.add("hidden");
-        profileOverlay.classList.add("hidden");
-    });
-});
-</script>
-@endpush

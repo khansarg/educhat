@@ -61,7 +61,7 @@
       </div>
     </header>
 
-    <section class="flex-1 bg-[#F5F9FD] rounded-3xl flex flex-col min-h-0">
+    <section class="flex-1 bg-transparent rounded-3xl flex flex-col min-h-0">
 
       {{-- MESSAGES --}}
       <div class="flex-1 min-h-0 overflow-y-auto pr-2 space-y-4 pt-2" id="chatMessages">
@@ -120,7 +120,7 @@
             <button type="button"
               class="suggest-msg px-5 py-2 rounded-full text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-60"
               @if(!$activeId) disabled @endif>
-              Jelaskan konsep
+              Jelaskan konsep dari {{ $clo->title }}
             </button>
 
             <button type="button"

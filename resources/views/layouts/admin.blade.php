@@ -15,7 +15,7 @@
     @include('admin.partials.course-list')
 
     {{-- MAIN CONTENT --}}
-   <main class="flex-1 overflow-y-auto px-10 py-10 bg-[#F5F9FD] dark:bg-slate-950">
+   <main class="flex-1 overflow-y-auto px-10 py-10 flex flex-col">
     @yield('content')
 </main>
 
