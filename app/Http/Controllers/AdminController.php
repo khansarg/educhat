@@ -19,7 +19,33 @@ class AdminController extends Controller
             abort(response()->json(['message' => 'Forbidden'], 403));
         }
     }
+    public function updateCourse(Request $request, Course $course)
+{
+    $data = $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+    ]);
 
+    $course->update([
+        'name' => $data['name'],
+    ]);
+
+    return response()->json(['success' => true]);
+}
+
+public function destroyCourse(Course $course)
+{
+    
+    $course->delete();
+
+    return response()->json(['success' => true]);
+}
+
+public function destroyClo(Clo $clo)
+{
+    $clo->delete();
+
+    return response()->json(['success' => true]);
+}
     // GET /admin/lecturers?search=...
     public function searchLecturers(Request $request)
     {
@@ -161,32 +187,37 @@ class AdminController extends Controller
     }
 
     // POST /admin/material/{id}/upload
-    public function uploadMaterialPdf(Request $request, $id)
+   public function uploadMaterialPdf(Request $request, $id)
 {
     $this->ensureAdmin($request->user());
 
     $request->validate([
-        'file' => 'required|mimes:pdf|max:10240',
+        'file' => 'required|mimes:pdf|max:10240', // 10MB max
     ]);
 
     $material = Material::findOrFail($id);
 
     // Menyimpan file PDF
-    $uploaded = $request->file('file');
-    $path = $uploaded->store('materials', 'public');  // Menyimpan file di storage/app/public/materials
+$uploaded = $request->file('file');
+$path = $uploaded->store('materials', 'cloudflare_r2'); // Menyimpan file di Cloudflare R2
 
-    // Menyimpan data file di tabel MaterialFile
-    $file = $material->files()->create([
-        'original_name' => $uploaded->getClientOriginalName(),
-        'pdf_path'      => $path,
-        'pdf_url'       => Storage::url($path), // Akan dihasilkan otomatis oleh URL generator
-    ]);
+// Menyusun URL untuk file yang diupload
+$url = env('CLOUDFLARE_R2_URL') . '/' . $path;
 
-    return response()->json([
-        'message' => 'PDF uploaded',
-        'file'    => $file,
-    ]);
+// Menyimpan data file di tabel MaterialFile
+$file = $material->files()->create([
+    'original_name' => $uploaded->getClientOriginalName(),
+    'pdf_path' => $path,
+    'pdf_url' => $url, // URL yang telah dibangun
+]);
+
+return response()->json([
+    'message' => 'PDF uploaded successfully',
+    'file' => $file,
+]);
+
 }
+
 
 
    

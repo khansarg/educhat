@@ -5,119 +5,258 @@
 
 @section('content')
 
+{{-- ================= COURSE HEADER ================= --}}
 <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 mb-8"
      data-course-id="{{ $course->id }}">
 
-    <h1 class="text-xl font-semibold mb-4 text-slate-900 dark:text-slate-50">
+  <div class="flex items-start justify-between gap-4">
+    <div class="min-w-0">
+      <h1 class="text-xl font-semibold mb-2 text-slate-900 dark:text-slate-50 truncate" id="courseNameHeading">
         {{ $course->name }}
-    </h1>
-
-    <p class="text-sm font-semibold mb-2 text-slate-900 dark:text-slate-100">Ringkasan Materi</p>
-
-    <div id="courseDesc"
-         contenteditable="true"
-         class="rounded-2xl border border-slate-200 dark:border-slate-700 p-4 text-sm
-                bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-300">
-        {{ $course->description ?? '' }}
+      </h1>
+      <p class="text-sm font-semibold mb-2 text-slate-900 dark:text-slate-100">Ringkasan Materi</p>
     </div>
 
-    <p id="courseDescStatus" class="text-xs text-slate-400 mt-2 hidden">
-        Menyimpan...
-    </p>
+    {{-- tombol edit + hapus course --}}
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <button id="editCourseBtn"
+              type="button"
+              class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700
+                     text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60">
+        ✏️ Edit
+      </button>
+
+      <button id="deleteCourseBtn"
+              type="button"
+              class="px-4 py-2 rounded-xl bg-rose-600 text-white text-sm hover:bg-rose-700">
+        🗑 Hapus
+      </button>
+    </div>
+  </div>
+
+  <div id="courseDesc"
+       contenteditable="true"
+       class="mt-4 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 text-sm
+              bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-300">
+    {{ $course->description ?? '' }}
+  </div>
+
+  <p id="courseDescStatus" class="text-xs text-slate-400 mt-2 hidden">
+    Menyimpan...
+  </p>
 </div>
 
+{{-- ================= CLO + MATERI ================= --}}
 <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8">
 
-    <div class="flex justify-between items-center mb-4">
-        <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Pilih CLO</p>
+  <div class="flex justify-between items-center mb-4">
+    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Pilih CLO</p>
 
-        <button id="openAddClo"
-                class="px-4 py-2 rounded-xl bg-[#9D1535] text-white text-sm hover:opacity-95">
-            + Tambah CLO
-        </button>
+    <div class="flex items-center gap-2">
+      <button id="openAddClo"
+              class="px-4 py-2 rounded-xl bg-[#9D1535] text-white text-sm hover:opacity-95">
+        + Tambah CLO
+      </button>
+
+      <button id="deleteCloBtn"
+              type="button"
+              class="px-4 py-2 rounded-xl bg-rose-600 text-white text-sm hover:bg-rose-700 disabled:opacity-60"
+              {{ $course->clos->count() ? '' : 'disabled' }}>
+        🗑 Hapus CLO
+      </button>
     </div>
+  </div>
 
-    <div class="flex gap-3 mb-6 flex-wrap" id="cloButtons">
-        @foreach($course->clos as $i => $clo)
-            <button data-clo-id="{{ $clo->id }}"
-                    type="button"
-                    class="clo-btn px-6 py-2 rounded-full
-                           {{ $i === 0
-                              ? 'bg-[#9D1535] text-white'
-                              : 'border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60' }}">
-                {{ $clo->title ?? 'CLO '.($i+1) }}
-            </button>
-        @endforeach
+  {{-- CLO buttons --}}
+  <div class="flex gap-3 mb-6 flex-wrap" id="cloButtons">
+    @foreach($course->clos as $i => $clo)
+      <button data-clo-id="{{ $clo->id }}"
+              type="button"
+              class="clo-btn px-6 py-2 rounded-full
+                     {{ $i === 0
+                        ? 'bg-[#9D1535] text-white border border-[#9D1535] cursor-default'
+                        : 'border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60' }}">
+        {{ $clo->title ?? 'CLO '.($i+1) }}
+      </button>
+    @endforeach
 
-        @if($course->clos->count() === 0)
-            <span class="text-sm text-slate-400">Belum ada CLO</span>
-        @endif
-    </div>
+    @if($course->clos->count() === 0)
+      <span class="text-sm text-slate-400">Belum ada CLO</span>
+    @endif
+  </div>
 
-    <p class="text-sm font-semibold mb-2 text-slate-900 dark:text-slate-100">Ringkasan CLO</p>
+  <p class="text-sm font-semibold mb-2 text-slate-900 dark:text-slate-100">Ringkasan CLO</p>
 
-    <div id="cloSummary"
-         contenteditable="true"
-         class="rounded-2xl border border-slate-200 dark:border-slate-700 p-4 text-sm
-                bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-300 mb-2">
-        {{ optional($course->clos->first())->summary }}
-    </div>
+  <div id="cloSummary"
+       contenteditable="true"
+       class="rounded-2xl border border-slate-200 dark:border-slate-700 p-4 text-sm
+              bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-300 mb-2">
+    {{ optional($course->clos->first())->summary }}
+  </div>
 
-    <p id="cloSummaryStatus" class="text-xs text-slate-400 hidden">
-        Menyimpan...
-    </p>
+  <p id="cloSummaryStatus" class="text-xs text-slate-400 hidden">
+    Menyimpan...
+  </p>
 
-    <div class="flex justify-between items-center mt-6 mb-3">
-        <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Daftar Materi</p>
+  <div class="flex justify-between items-center mt-6 mb-3">
+    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Daftar Materi</p>
 
-        <button id="openAddMateri"
-                type="button"
-                class="px-4 py-2 rounded-xl bg-[#9D1535] text-white text-sm hover:opacity-95">
-            + Tambah Materi
-        </button>
-    </div>
+    <button id="openAddMateri"
+            type="button"
+            class="px-4 py-2 rounded-xl bg-[#9D1535] text-white text-sm hover:opacity-95">
+      + Tambah Materi
+    </button>
+  </div>
 
-    <div class="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
-        <table class="w-full text-sm">
-            <thead class="bg-slate-50 dark:bg-slate-950/60">
-                <tr>
-                    <th class="p-3 text-left text-slate-700 dark:text-slate-200">Judul</th>
-                    <th class="p-3 text-left text-slate-700 dark:text-slate-200">File</th>
-                    <th class="p-3 text-left text-slate-700 dark:text-slate-200">Aksi</th>
-                </tr>
-            </thead>
-            <tbody id="materiTableBody" class="bg-white dark:bg-slate-900">
-                <tr>
-                    <td colspan="3" class="p-3 text-slate-400">Pilih CLO untuk melihat materi.</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+  <div class="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 dark:bg-slate-950/60">
+        <tr>
+          <th class="p-3 text-left text-slate-700 dark:text-slate-200">Judul</th>
+          <th class="p-3 text-left text-slate-700 dark:text-slate-200">File</th>
+          <th class="p-3 text-left text-slate-700 dark:text-slate-200">Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="materiTableBody" class="bg-white dark:bg-slate-900">
+        <tr>
+          <td colspan="3" class="p-3 text-slate-400">Pilih CLO untuk melihat materi.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
+{{-- ================= MODAL TAMBAH CLO ================= --}}
 <div id="addCloModal" class="fixed inset-0 z-50 hidden items-center justify-center">
-    <div id="addCloOverlay" class="absolute inset-0 bg-black/40"></div>
+  <div id="addCloOverlay" class="absolute inset-0 bg-black/40"></div>
 
-    <div class="relative bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md p-6 z-10 border border-slate-200 dark:border-slate-800">
-        <h2 class="text-lg font-semibold mb-4 text-slate-900 dark:text-slate-50">Tambah CLO</h2>
+  <div class="relative bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md p-6 z-10 border border-slate-200 dark:border-slate-800">
+    <h2 class="text-lg font-semibold mb-4 text-slate-900 dark:text-slate-50">Tambah CLO</h2>
 
-        <input id="cloTitleInput"
-               type="text"
-               class="w-full px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700
-                      bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100"
-               placeholder="Contoh: CLO 4">
+    <input id="cloTitleInput"
+           type="text"
+           class="w-full px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700
+                  bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100"
+           placeholder="Contoh: CLO 4">
 
-        <div class="mt-6 flex justify-end gap-3">
-            <button id="closeAddClo" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200">
-                Batal
-            </button>
-            <button id="saveCloBtn"
-                    disabled
-                    class="px-4 py-2 rounded-xl bg-[#9D1535] text-white text-sm opacity-70 cursor-not-allowed">
-                Simpan
-            </button>
-        </div>
+    <div class="mt-6 flex justify-end gap-3">
+      <button id="closeAddClo"
+              class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200">
+        Batal
+      </button>
+
+      <button id="saveCloBtn"
+              disabled
+              class="px-4 py-2 rounded-xl bg-[#9D1535] text-white text-sm opacity-70 cursor-not-allowed">
+        Simpan
+      </button>
     </div>
+  </div>
+</div>
+
+{{-- ================= MODAL EDIT COURSE NAME ================= --}}
+<div id="editCourseModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+  <div id="editCourseOverlay" class="absolute inset-0 bg-black/40"></div>
+
+  <div class="relative bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md p-6 z-10 border border-slate-200 dark:border-slate-800">
+    <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-50">Edit Nama Course</h2>
+    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Masukkan nama course yang baru.</p>
+
+    <div class="mt-4">
+      <label class="text-xs text-slate-600 dark:text-slate-300">Nama Course</label>
+      <input id="courseNameInput"
+             type="text"
+             class="mt-2 w-full px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700
+                    bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100"
+             value="{{ $course->name }}">
+      <p id="courseNameError" class="text-xs text-rose-600 mt-2 hidden">Nama course tidak boleh kosong.</p>
+    </div>
+
+    <div class="mt-6 flex justify-end gap-3">
+      <button id="cancelEditCourse"
+              class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200">
+        Batal
+      </button>
+      <button id="saveEditCourse"
+              class="px-4 py-2 rounded-xl bg-[#9D1535] text-white text-sm hover:opacity-95">
+        Simpan
+      </button>
+    </div>
+  </div>
+</div>
+
+{{-- ================= MODAL CONFIRM DELETE COURSE ================= --}}
+<div id="confirmDeleteCourseModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+  <div id="confirmDeleteCourseOverlay" class="absolute inset-0 bg-black/40"></div>
+
+  <div class="relative bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md p-6 z-10 border border-slate-200 dark:border-slate-800">
+    <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-50">Hapus Course?</h2>
+    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">
+      Course ini akan dihapus beserta semua CLO dan materi di dalamnya.
+      <span class="font-semibold text-rose-600">Aksi ini tidak bisa dibatalkan.</span>
+    </p>
+
+    <div class="mt-6 flex justify-end gap-3">
+      <button id="cancelDeleteCourse"
+              class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200">
+        Batal
+      </button>
+      <button id="confirmDeleteCourse"
+              class="px-4 py-2 rounded-xl bg-rose-600 text-white text-sm hover:bg-rose-700">
+        Ya, Hapus
+      </button>
+    </div>
+  </div>
+</div>
+
+{{-- ================= MODAL CONFIRM DELETE CLO ================= --}}
+<div id="confirmDeleteCloModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+  <div id="confirmDeleteCloOverlay" class="absolute inset-0 bg-black/40"></div>
+
+  <div class="relative bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md p-6 z-10 border border-slate-200 dark:border-slate-800">
+    <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-50">Hapus CLO?</h2>
+    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">
+      CLO yang aktif akan dihapus beserta semua materi di dalamnya.
+      <span class="font-semibold text-rose-600">Aksi ini tidak bisa dibatalkan.</span>
+    </p>
+
+    <div class="mt-6 flex justify-end gap-3">
+      <button id="cancelDeleteClo"
+              class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200">
+        Batal
+      </button>
+      <button id="confirmDeleteClo"
+              class="px-4 py-2 rounded-xl bg-rose-600 text-white text-sm hover:bg-rose-700 disabled:opacity-60">
+        Ya, Hapus
+      </button>
+    </div>
+  </div>
+</div>
+
+{{-- ================= MODAL CONFIRM DELETE MATERI ================= --}}
+<div id="confirmDeleteMateriModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+  <div id="confirmDeleteMateriOverlay" class="absolute inset-0 bg-black/40"></div>
+
+  <div class="relative bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md p-6 z-10 border border-slate-200 dark:border-slate-800">
+    <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-50">Hapus Materi?</h2>
+
+    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">
+      Materi <span id="materiDeleteName" class="font-semibold text-slate-900 dark:text-slate-50">ini</span> akan dihapus beserta file di dalamnya.
+      <span class="font-semibold text-rose-600">Aksi ini tidak bisa dibatalkan.</span>
+    </p>
+
+    <div class="mt-6 flex justify-end gap-3">
+      <button id="cancelDeleteMateri"
+              class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200">
+        Batal
+      </button>
+
+      <button id="confirmDeleteMateri"
+              class="px-4 py-2 rounded-xl bg-rose-600 text-white text-sm hover:bg-rose-700 disabled:opacity-60">
+        Ya, Hapus
+      </button>
+    </div>
+  </div>
 </div>
 
 @endsection
@@ -125,296 +264,531 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const courseId = document.querySelector('[data-course-id]')?.dataset.courseId;
+  const courseId = document.querySelector('[data-course-id]')?.dataset.courseId;
 
-    @php
-      $closForJs = $course->clos
-        ->sortBy('order')
-        ->map(function($c){
-          return [
-            'id' => $c->id,
-            'title' => $c->title,
-            'summary' => $c->summary,
-            'materials' => $c->materials
-              ? $c->materials->map(function($m){
-                  return [
-                    'id' => $m->id,
-                    'title' => $m->title,
-                    'description' => $m->description,
-                    'files' => $m->files
-                      ? $m->files->map(fn($f) => [
-                          'id' => $f->id,
-                          'download_url' => $f->download_url,
-                          'pdf_path' => $f->pdf_path,
-                        ])->values()
-                      : [],
-                  ];
-                })->values()
-              : [],
-          ];
-        })->values();
-    @endphp
+  @php
+    $closForJs = $course->clos
+      ->sortBy('order')
+      ->map(function($c){
+        return [
+          'id' => $c->id,
+          'title' => $c->title,
+          'summary' => $c->summary,
+          'materials' => $c->materials
+            ? $c->materials->map(function($m){
+                return [
+                  'id' => $m->id,
+                  'title' => $m->title,
+                  'description' => $m->description,
+                  'files' => $m->files
+                    ? $m->files->map(fn($f) => [
+                        'id' => $f->id,
+                        'download_url' => rtrim(env('CLOUDFLARE_R2_URL',''), '/') . '/' . ltrim($f->pdf_path, '/'),
+                        'pdf_path' => $f->pdf_path,
+                      ])->values()
+                    : [],
+                ];
+              })->values()
+            : [],
+        ];
+      })->values();
+  @endphp
 
-    const clos = @json($closForJs);
-    let activeCloId = clos?.[0]?.id ? String(clos[0].id) : null;
+  const clos = @json($closForJs);
+  let activeCloId = clos?.[0]?.id ? String(clos[0].id) : null;
 
-    function show(el) { el?.classList.remove('hidden'); }
-    function hide(el) { el?.classList.add('hidden'); }
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+  if (!csrfToken) {
+    alert('CSRF token tidak ditemukan. Refresh halaman.');
+    throw new Error('CSRF token missing');
+  }
 
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-    if (!csrfToken) {
-      alert('CSRF token tidak ditemukan. Refresh halaman.');
-      throw new Error('CSRF token missing');
-    }
+  function show(el) { el?.classList.remove('hidden'); }
+  function hide(el) { el?.classList.add('hidden'); }
 
-    const jsonFetch = async (url, options = {}) => {
-      const res = await fetch(url, {
-        method: options.method || 'POST',
-        credentials: 'same-origin',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': csrfToken,
-          'X-Requested-With': 'XMLHttpRequest',
-          ...(options.headers || {}),
-        },
-        body: (options.body !== undefined) ? JSON.stringify(options.body) : undefined,
-      });
-
-      const ct = res.headers.get('content-type') || '';
-      const data = ct.includes('application/json')
-        ? await res.json().catch(() => null)
-        : await res.text();
-
-      if (!res.ok) {
-        if (res.status === 419) alert('Session expired. Refresh halaman ya.');
-        throw new Error((data && typeof data === 'object' && data.message) ? data.message : 'Request gagal');
-      }
-      return data;
-    };
-
-    // 1) Autosave Course Summary
-    const courseDescEl = document.getElementById('courseDesc');
-    const courseDescStatus = document.getElementById('courseDescStatus');
-    let courseTimer = null;
-
-    courseDescEl?.addEventListener('input', () => {
-        clearTimeout(courseTimer);
-        courseTimer = setTimeout(async () => {
-            try {
-                show(courseDescStatus);
-                await jsonFetch(`/admin/course/${courseId}/summary`, {
-                  method: 'PATCH',
-                  body: { description: courseDescEl.innerText.trim() }
-                });
-            } catch (e) {
-                console.error(e);
-                alert('Gagal menyimpan ringkasan course: ' + e.message);
-            } finally {
-                hide(courseDescStatus);
-            }
-        }, 700);
+  const jsonFetch = async (url, options = {}) => {
+    const res = await fetch(url, {
+      method: options.method || 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrfToken,
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(options.headers || {}),
+      },
+      body: (options.body !== undefined) ? JSON.stringify(options.body) : undefined,
     });
 
-    // 2) CLO Switching + Render Materi
-    const cloButtonsWrap = document.getElementById('cloButtons');
-    const cloSummaryEl = document.getElementById('cloSummary');
+    const ct = res.headers.get('content-type') || '';
+    const data = ct.includes('application/json')
+      ? await res.json().catch(() => null)
+      : await res.text();
 
-    function renderMateriTable() {
-        const tbody = document.getElementById('materiTableBody');
-        if (!tbody) return;
+    if (!res.ok) {
+      if (res.status === 419) alert('Session expired. Refresh halaman ya.');
+      throw new Error((data && typeof data === 'object' && data.message) ? data.message : 'Request gagal');
+    }
+    return data;
+  };
 
-        const cloData = clos.find(c => String(c.id) === String(activeCloId));
-        const materials = cloData?.materials || [];
+  // =========================
+  // helper modal
+  // =========================
+  const openModal = (modalEl) => {
+    if (!modalEl) return;
+    modalEl.classList.remove('hidden');
+    modalEl.classList.add('flex');
+    document.body.classList.add('overflow-hidden');
+  };
+  const closeModal = (modalEl) => {
+    if (!modalEl) return;
+    modalEl.classList.add('hidden');
+    modalEl.classList.remove('flex');
+    document.body.classList.remove('overflow-hidden');
+  };
 
-        if (!activeCloId) {
-            tbody.innerHTML = `<tr><td colspan="3" class="p-3 text-slate-400">Pilih CLO untuk melihat materi.</td></tr>`;
-            return;
-        }
+  // =========================
+  // 1) Autosave Course Summary
+  // =========================
+  const courseDescEl = document.getElementById('courseDesc');
+  const courseDescStatus = document.getElementById('courseDescStatus');
+  let courseTimer = null;
 
-        if (materials.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" class="p-3 text-slate-400">Belum ada materi pada CLO ini.</td></tr>`;
-            return;
-        }
+  courseDescEl?.addEventListener('input', () => {
+    clearTimeout(courseTimer);
+    courseTimer = setTimeout(async () => {
+      try {
+        show(courseDescStatus);
+        await jsonFetch(`/admin/course/${courseId}/summary`, {
+          method: 'PATCH',
+          body: { description: courseDescEl.innerText.trim() }
+        });
+      } catch (e) {
+        console.error(e);
+        alert('Gagal menyimpan ringkasan course: ' + e.message);
+      } finally {
+        hide(courseDescStatus);
+      }
+    }, 700);
+  });
 
-        tbody.innerHTML = materials.map(m => {
-            const files = Array.isArray(m.files) ? m.files : [];
-            const fileCount = files.length;
-            const firstUrl = files[0]?.download_url || '';
+  // =========================
+  // 2) CLO Switching + Render Materi
+  // =========================
+  const cloButtonsWrap = document.getElementById('cloButtons');
+  const cloSummaryEl = document.getElementById('cloSummary');
 
-            const fileCell = fileCount > 0
-              ? `<a href="${firstUrl}" target="_blank" class="text-blue-600 hover:underline">
-                    ${fileCount} file (lihat)
-                 </a>`
-              : `<span class="text-slate-400">Belum ada file</span>`;
+  const ACTIVE_BTN =
+    "clo-btn px-6 py-2 rounded-full bg-[#9D1535] text-white border border-[#9D1535] cursor-default";
+  const INACTIVE_BTN =
+    "clo-btn px-6 py-2 rounded-full border border-slate-200 dark:border-slate-700 " +
+    "text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60";
 
-            return `
-              <tr class="border-t border-slate-200 dark:border-slate-800">
-                <td class="p-3 text-slate-700 dark:text-slate-200">${m.title ?? '-'}</td>
-                <td class="p-3">${fileCell}</td>
-                <td class="p-3">
-                  <div class="flex gap-3">
-                    <a href="/admin/material/${m.id}/edit" class="text-blue-600 hover:underline">Edit</a>
-                    <button type="button"
-                            class="text-rose-600 hover:underline js-del-materi"
-                            data-id="${m.id}">
-                      Hapus
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            `;
-        }).join('');
+  function renderMateriTable() {
+    const tbody = document.getElementById('materiTableBody');
+    if (!tbody) return;
+
+    const cloData = clos.find(c => String(c.id) === String(activeCloId));
+    const materials = cloData?.materials || [];
+
+    if (!activeCloId) {
+      tbody.innerHTML = `<tr><td colspan="3" class="p-3 text-slate-400">Pilih CLO untuk melihat materi.</td></tr>`;
+      return;
     }
 
-    function setActiveClo(cloId) {
-        activeCloId = String(cloId);
+    if (materials.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="3" class="p-3 text-slate-400">Belum ada materi pada CLO ini.</td></tr>`;
+      return;
+    }
 
-        document.querySelectorAll('.clo-btn').forEach(b => {
-            b.classList.remove('bg-[#9D1535]', 'text-white');
-            b.classList.add('border');
+    const escapeHtml = (s) => String(s ?? '')
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'","&#039;");
+
+    tbody.innerHTML = materials.map(m => {
+      const files = Array.isArray(m.files) ? m.files : [];
+      const fileCount = files.length;
+      const firstUrl = files[0]?.download_url || '';
+
+      const fileCell = fileCount > 0
+        ? `<a href="${firstUrl}" target="_blank" class="text-blue-600 hover:underline">${fileCount} file (lihat)</a>`
+        : `<span class="text-slate-400">Belum ada file</span>`;
+
+      const titleEsc = escapeHtml(m.title ?? '-');
+
+      return `
+        <tr class="border-t border-slate-200 dark:border-slate-800">
+          <td class="p-3 text-slate-700 dark:text-slate-200">${titleEsc}</td>
+          <td class="p-3">${fileCell}</td>
+          <td class="p-3">
+            <div class="flex gap-3">
+              <a href="/admin/material/${m.id}/edit" class="text-blue-600 hover:underline">Edit</a>
+              <button type="button"
+                      class="text-rose-600 hover:underline js-del-materi"
+                      data-id="${m.id}">
+                Hapus
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  const deleteCloBtn = document.getElementById('deleteCloBtn');
+  function syncDeleteCloBtn() {
+    if (!deleteCloBtn) return;
+    deleteCloBtn.disabled = !activeCloId;
+  }
+
+  function setActiveClo(cloId) {
+    activeCloId = String(cloId);
+
+    document.querySelectorAll(".clo-btn").forEach((b) => {
+      b.className = INACTIVE_BTN;
+    });
+
+    const activeBtn = document.querySelector(`.clo-btn[data-clo-id="${activeCloId}"]`);
+    if (activeBtn) activeBtn.className = ACTIVE_BTN;
+
+    const cloData = clos.find(c => String(c.id) === activeCloId);
+    if (cloSummaryEl) cloSummaryEl.innerText = cloData?.summary ?? '';
+
+    renderMateriTable();
+    syncDeleteCloBtn();
+  }
+
+  cloButtonsWrap?.addEventListener('click', (e) => {
+    const btn = e.target.closest('.clo-btn');
+    if (!btn) return;
+    setActiveClo(btn.dataset.cloId);
+  });
+
+  if (activeCloId) setActiveClo(activeCloId);
+  syncDeleteCloBtn();
+
+  // =========================
+  // DELETE MATERI (pakai modal)
+  // =========================
+  const confirmDeleteMateriModal = document.getElementById('confirmDeleteMateriModal');
+  const confirmDeleteMateriOverlay = document.getElementById('confirmDeleteMateriOverlay');
+  const cancelDeleteMateri = document.getElementById('cancelDeleteMateri');
+  const confirmDeleteMateri = document.getElementById('confirmDeleteMateri');
+  const materiDeleteName = document.getElementById('materiDeleteName');
+
+  let pendingDeleteMateriId = null;
+
+  function openDeleteMateriModal({ id, title }) {
+    pendingDeleteMateriId = id;
+    if (materiDeleteName) materiDeleteName.textContent = title || 'ini';
+    openModal(confirmDeleteMateriModal);
+  }
+
+  function closeDeleteMateriModal() {
+    pendingDeleteMateriId = null;
+    closeModal(confirmDeleteMateriModal);
+  }
+
+  document.getElementById('materiTableBody')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('.js-del-materi');
+    if (!btn) return;
+
+    const materialId = btn.dataset.id;
+    if (!materialId) return;
+
+    const cloData = clos.find(c => String(c.id) === String(activeCloId));
+    const material = cloData?.materials?.find(m => String(m.id) === String(materialId));
+    const title = material?.title || 'materi ini';
+
+    openDeleteMateriModal({ id: materialId, title });
+  });
+
+  cancelDeleteMateri?.addEventListener('click', closeDeleteMateriModal);
+  confirmDeleteMateriOverlay?.addEventListener('click', closeDeleteMateriModal);
+
+  confirmDeleteMateri?.addEventListener('click', async () => {
+    if (!pendingDeleteMateriId) return;
+
+    try {
+      confirmDeleteMateri.disabled = true;
+
+      await jsonFetch(`/admin/material/${pendingDeleteMateriId}`, { method: 'DELETE' });
+
+      const cloData = clos.find(c => String(c.id) === String(activeCloId));
+      if (cloData?.materials) {
+        cloData.materials = cloData.materials.filter(m => String(m.id) !== String(pendingDeleteMateriId));
+      }
+
+      renderMateriTable();
+      closeDeleteMateriModal();
+    } catch (err) {
+      console.error(err);
+      alert('Gagal hapus materi: ' + err.message);
+    } finally {
+      confirmDeleteMateri.disabled = false;
+    }
+  });
+
+  // =========================
+  // 3) Autosave CLO Summary
+  // =========================
+  const cloSummaryStatus = document.getElementById('cloSummaryStatus');
+  let cloTimer = null;
+
+  cloSummaryEl?.addEventListener('input', () => {
+    clearTimeout(cloTimer);
+    cloTimer = setTimeout(async () => {
+      if (!activeCloId) return;
+
+      const summary = cloSummaryEl.innerText.trim();
+      try {
+        show(cloSummaryStatus);
+
+        await jsonFetch(`/admin/clo/${activeCloId}/summary`, {
+          method: 'PATCH',
+          body: { summary }
         });
 
-        const activeBtn = document.querySelector(`.clo-btn[data-clo-id="${activeCloId}"]`);
-        if (activeBtn) {
-            activeBtn.classList.add('bg-[#9D1535]', 'text-white');
-            activeBtn.classList.remove('border');
-        }
+        const idx = clos.findIndex(c => String(c.id) === String(activeCloId));
+        if (idx !== -1) clos[idx].summary = summary;
+      } catch (e) {
+        console.error(e);
+        alert('Gagal menyimpan ringkasan CLO: ' + e.message);
+      } finally {
+        hide(cloSummaryStatus);
+      }
+    }, 700);
+  });
 
-        const cloData = clos.find(c => String(c.id) === activeCloId);
-        if (cloSummaryEl) cloSummaryEl.innerText = cloData?.summary ?? '';
+  // =========================
+  // 4) Modal Tambah CLO
+  // =========================
+  const addCloModal = document.getElementById('addCloModal');
+  const addCloOverlay = document.getElementById('addCloOverlay');
+  const openAddClo = document.getElementById('openAddClo');
+  const closeAddClo = document.getElementById('closeAddClo');
+  const cloTitleInput = document.getElementById('cloTitleInput');
+  const saveCloBtn = document.getElementById('saveCloBtn');
 
-        renderMateriTable();
-    }
-
-    cloButtonsWrap?.addEventListener('click', (e) => {
-        const btn = e.target.closest('.clo-btn');
-        if (!btn) return;
-        setActiveClo(btn.dataset.cloId);
-    });
-
-    if (activeCloId) setActiveClo(activeCloId);
-
-    // Delete materi
-    document.getElementById('materiTableBody')?.addEventListener('click', async (e) => {
-        const btn = e.target.closest('.js-del-materi');
-        if (!btn) return;
-
-        const materialId = btn.dataset.id;
-        if (!materialId) return;
-
-        if (!confirm('Hapus materi ini?')) return;
-
-        try {
-            await jsonFetch(`/admin/material/${materialId}`, { method: 'DELETE' });
-
-            const cloData = clos.find(c => String(c.id) === String(activeCloId));
-            if (cloData?.materials) {
-                cloData.materials = cloData.materials.filter(m => String(m.id) !== String(materialId));
-            }
-            renderMateriTable();
-
-        } catch (err) {
-            console.error(err);
-            alert('Gagal hapus materi: ' + err.message);
-        }
-    });
-
-    // 3) Autosave CLO Summary
-    const cloSummaryStatus = document.getElementById('cloSummaryStatus');
-    let cloTimer = null;
-
-    cloSummaryEl?.addEventListener('input', () => {
-        clearTimeout(cloTimer);
-        cloTimer = setTimeout(async () => {
-            if (!activeCloId) return;
-
-            const summary = cloSummaryEl.innerText.trim();
-            try {
-                show(cloSummaryStatus);
-
-                await jsonFetch(`/admin/clo/${activeCloId}/summary`, {
-                  method: 'PATCH',
-                  body: { summary }
-                });
-
-                const idx = clos.findIndex(c => String(c.id) === String(activeCloId));
-                if (idx !== -1) clos[idx].summary = summary;
-
-            } catch (e) {
-                console.error(e);
-                alert('Gagal menyimpan ringkasan CLO: ' + e.message);
-            } finally {
-                hide(cloSummaryStatus);
-            }
-        }, 700);
-    });
-
-    // 4) Modal Tambah CLO
-    const addCloModal = document.getElementById('addCloModal');
-    const addCloOverlay = document.getElementById('addCloOverlay');
-    const openAddClo = document.getElementById('openAddClo');
-    const closeAddClo = document.getElementById('closeAddClo');
-    const cloTitleInput = document.getElementById('cloTitleInput');
-    const saveCloBtn = document.getElementById('saveCloBtn');
-
-    function openCloModal() {
-        addCloModal?.classList.remove('hidden');
-        addCloModal?.classList.add('flex');
-        cloTitleInput?.focus();
-    }
-    function closeCloModal() {
-        addCloModal?.classList.add('hidden');
-        addCloModal?.classList.remove('flex');
-        if (cloTitleInput) cloTitleInput.value = '';
-        toggleSaveClo();
-    }
-
-    openAddClo?.addEventListener('click', openCloModal);
-    closeAddClo?.addEventListener('click', closeCloModal);
-    addCloOverlay?.addEventListener('click', closeCloModal);
-
-    function toggleSaveClo() {
-        const ok = (cloTitleInput?.value || '').trim().length > 0;
-        if (!saveCloBtn) return;
-        saveCloBtn.disabled = !ok;
-        saveCloBtn.classList.toggle('opacity-70', !ok);
-        saveCloBtn.classList.toggle('cursor-not-allowed', !ok);
-    }
-    cloTitleInput?.addEventListener('input', toggleSaveClo);
+  function openCloModal() {
+    openModal(addCloModal);
+    cloTitleInput?.focus();
+  }
+  function closeCloModal() {
+    closeModal(addCloModal);
+    if (cloTitleInput) cloTitleInput.value = '';
     toggleSaveClo();
+  }
 
-    saveCloBtn?.addEventListener('click', async () => {
-        const title = (cloTitleInput?.value || '').trim();
-        if (!title) return;
+  openAddClo?.addEventListener('click', openCloModal);
+  closeAddClo?.addEventListener('click', closeCloModal);
+  addCloOverlay?.addEventListener('click', closeCloModal);
 
-        try {
-            await jsonFetch(`/admin/course/${courseId}/clos`, {
-              method: 'POST',
-              body: { title }
-            });
+  function toggleSaveClo() {
+    const ok = (cloTitleInput?.value || '').trim().length > 0;
+    if (!saveCloBtn) return;
+    saveCloBtn.disabled = !ok;
+    saveCloBtn.classList.toggle('opacity-70', !ok);
+    saveCloBtn.classList.toggle('cursor-not-allowed', !ok);
+  }
+  cloTitleInput?.addEventListener('input', toggleSaveClo);
+  toggleSaveClo();
 
-            closeCloModal();
-            location.reload();
-        } catch (e) {
-            console.error(e);
-            alert('Gagal tambah CLO: ' + e.message);
-        }
-    });
+  saveCloBtn?.addEventListener('click', async () => {
+    const title = (cloTitleInput?.value || '').trim();
+    if (!title) return;
 
-    // 6) Tambah Materi => redirect
-    document.getElementById('openAddMateri')?.addEventListener('click', () => {
-        if (!activeCloId) {
-            alert('Pilih CLO terlebih dulu.');
-            return;
-        }
-        window.location.href = `/admin/course/${courseId}/clo/${activeCloId}/materi/create`;
-    });
+    try {
+      await jsonFetch(`/admin/course/${courseId}/clos`, {
+        method: 'POST',
+        body: { title }
+      });
 
-    document.addEventListener('keydown', (e) => {
-        if (e.key !== 'Escape') return;
-        closeCloModal();
-    });
+      closeCloModal();
+      location.reload();
+    } catch (e) {
+      console.error(e);
+      alert('Gagal tambah CLO: ' + e.message);
+    }
+  });
+
+  // =========================
+  // 5) Tambah Materi => redirect
+  // =========================
+  document.getElementById('openAddMateri')?.addEventListener('click', () => {
+    if (!activeCloId) {
+      alert('Pilih CLO terlebih dulu.');
+      return;
+    }
+    window.location.href = `/admin/course/${courseId}/clo/${activeCloId}/materi/create`;
+  });
+
+  // =========================
+  // EDIT COURSE MODAL
+  // =========================
+  const editCourseModal = document.getElementById('editCourseModal');
+  const editCourseOverlay = document.getElementById('editCourseOverlay');
+  const courseNameInput = document.getElementById('courseNameInput');
+  const courseNameError = document.getElementById('courseNameError');
+  const cancelEditCourse = document.getElementById('cancelEditCourse');
+  const saveEditCourse = document.getElementById('saveEditCourse');
+
+  document.getElementById('editCourseBtn')?.addEventListener('click', () => {
+    if (courseNameError) hide(courseNameError);
+    if (courseNameInput) courseNameInput.value = @json($course->name);
+    openModal(editCourseModal);
+    setTimeout(() => courseNameInput?.focus(), 0);
+  });
+
+  cancelEditCourse?.addEventListener('click', () => closeModal(editCourseModal));
+  editCourseOverlay?.addEventListener('click', () => closeModal(editCourseModal));
+
+  saveEditCourse?.addEventListener('click', async () => {
+    if (!courseId) return;
+    const name = (courseNameInput?.value || '').trim();
+    if (!name) {
+      if (courseNameError) show(courseNameError);
+      courseNameInput?.focus();
+      return;
+    }
+
+    try {
+      await jsonFetch(`/admin/course/${courseId}`, {
+        method: 'PATCH',
+        body: { name }
+      });
+      location.reload();
+    } catch (e) {
+      console.error(e);
+      alert('Gagal update nama course: ' + e.message);
+    }
+  });
+
+  courseNameInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      saveEditCourse?.click();
+    }
+  });
+
+  // =========================
+  // CONFIRM DELETE COURSE MODAL
+  // =========================
+  const confirmDeleteCourseModal = document.getElementById('confirmDeleteCourseModal');
+  const confirmDeleteCourseOverlay = document.getElementById('confirmDeleteCourseOverlay');
+  const cancelDeleteCourse = document.getElementById('cancelDeleteCourse');
+  const confirmDeleteCourse = document.getElementById('confirmDeleteCourse');
+
+  document.getElementById('deleteCourseBtn')?.addEventListener('click', () => {
+    openModal(confirmDeleteCourseModal);
+  });
+
+  cancelDeleteCourse?.addEventListener('click', () => closeModal(confirmDeleteCourseModal));
+  confirmDeleteCourseOverlay?.addEventListener('click', () => closeModal(confirmDeleteCourseModal));
+
+  confirmDeleteCourse?.addEventListener('click', async () => {
+    if (!courseId) return;
+    try {
+      confirmDeleteCourse.disabled = true;
+      await jsonFetch(`/admin/course/${courseId}`, { method: 'DELETE' });
+
+      window.location.href = @json(route('admin.dashboard'));
+    } catch (e) {
+      console.error(e);
+      alert('Gagal hapus course: ' + e.message);
+    } finally {
+      confirmDeleteCourse.disabled = false;
+      closeModal(confirmDeleteCourseModal);
+    }
+  });
+
+  // =========================
+  // CONFIRM DELETE CLO MODAL
+  // =========================
+  const confirmDeleteCloModal = document.getElementById('confirmDeleteCloModal');
+  const confirmDeleteCloOverlay = document.getElementById('confirmDeleteCloOverlay');
+  const cancelDeleteClo = document.getElementById('cancelDeleteClo');
+  const confirmDeleteClo = document.getElementById('confirmDeleteClo');
+
+  deleteCloBtn?.addEventListener('click', () => {
+    if (!activeCloId) return;
+    confirmDeleteClo.disabled = false;
+    openModal(confirmDeleteCloModal);
+  });
+
+  cancelDeleteClo?.addEventListener('click', () => closeModal(confirmDeleteCloModal));
+  confirmDeleteCloOverlay?.addEventListener('click', () => closeModal(confirmDeleteCloModal));
+
+  function renderCloButtons() {
+    if (!cloButtonsWrap) return;
+
+    if (!clos.length) {
+      cloButtonsWrap.innerHTML = `<span class="text-sm text-slate-400">Belum ada CLO</span>`;
+      return;
+    }
+
+    cloButtonsWrap.innerHTML = clos.map((c, i) => {
+      const active = String(c.id) === String(activeCloId);
+      const label = c.title ?? ('CLO ' + (i + 1));
+      const cls = active ? ACTIVE_BTN : INACTIVE_BTN;
+
+      return `
+        <button data-clo-id="${c.id}"
+                type="button"
+                class="${cls}">
+          ${label}
+        </button>
+      `;
+    }).join('');
+  }
+
+  confirmDeleteClo?.addEventListener('click', async () => {
+    if (!activeCloId) return;
+
+    try {
+      confirmDeleteClo.disabled = true;
+
+      await jsonFetch(`/admin/clo/${activeCloId}`, { method: 'DELETE' });
+
+      const idx = clos.findIndex(c => String(c.id) === String(activeCloId));
+      if (idx !== -1) clos.splice(idx, 1);
+
+      activeCloId = clos?.[0]?.id ? String(clos[0].id) : null;
+
+      renderCloButtons();
+
+      if (activeCloId) setActiveClo(activeCloId);
+      else {
+        if (cloSummaryEl) cloSummaryEl.innerText = '';
+        renderMateriTable();
+      }
+
+      syncDeleteCloBtn();
+      closeModal(confirmDeleteCloModal);
+
+    } catch (e) {
+      console.error(e);
+      alert('Gagal hapus CLO: ' + e.message);
+    } finally {
+      confirmDeleteClo.disabled = false;
+    }
+  });
+
+  // =========================
+  // ESC close modal (semua)
+  // =========================
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    closeCloModal();
+    closeModal(editCourseModal);
+    closeModal(confirmDeleteCourseModal);
+    closeModal(confirmDeleteCloModal);
+    closeDeleteMateriModal();
+  });
 });
 </script>
 @endpush

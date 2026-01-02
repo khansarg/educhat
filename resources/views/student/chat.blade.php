@@ -49,14 +49,7 @@
       </div>
 
       {{-- toggle right info --}}
-      <button
-        id="infoToggleBtn"
-        class="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800"
-        type="button"
-        aria-controls="cloInfoPanel"
-        aria-expanded="false">
-        <span class="text-sm">📘</span>
-      </button>
+      
     </header>
 
     {{-- CHAT AREA --}}
@@ -82,7 +75,7 @@
         <div class="flex flex-wrap gap-3 mb-3">
           <button type="button"
             class="suggest-msg px-5 py-2 rounded-full text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800">
-            Jelaskan konsep {{ $clo->name }}
+            Jelaskan konsep dari {{ $clo->title }}
           </button>
 
           <button type="button"
@@ -92,7 +85,7 @@
 
           <button type="button"
             class="suggest-msg px-5 py-2 rounded-full text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800">
-            Apa materi utama dalam {{ $clo->name }}?
+            Apa materi utama dalam {{ $clo->title }}?
           </button>
         </div>
 
@@ -154,7 +147,6 @@
         </h2>
 
         <div class="mb-4">
-          <p class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">CLO:</p>
           <p class="text-sm font-semibold text-slate-900 dark:text-slate-50">
             {{ $clo->name ?? $clo->title ?? 'CLO' }}
           </p>
@@ -183,28 +175,32 @@
             @if($clo->materials && $clo->materials->count())
               <div class="space-y-3">
                 @foreach($clo->materials as $m)
-                  <div class="border-b border-slate-100 dark:border-slate-800 pb-3 last:border-b-0 last:pb-0">
-                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                      {{ $m->title }}
-                    </p>
+    <div class="border-b border-slate-100 dark:border-slate-800 pb-3 last:border-b-0 last:pb-0">
+        <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">
+            {{ $m->title }}
+        </p>
 
-                    @if($m->files && $m->files->count())
-                      <ul class="mt-2 space-y-1">
-                        @foreach($m->files as $f)
-                          <li>
-                            <a href="{{ $f->download_url }}"
-                               target="_blank"
-                               class="text-xs text-blue-600 dark:text-blue-400 hover:underline break-words">
-                              📄 {{ $f->original_name ?? basename($f->pdf_path ?? 'file.pdf') }}
-                            </a>
-                          </li>
-                        @endforeach
-                      </ul>
-                    @else
-                      <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Belum ada file PDF.</p>
-                    @endif
-                  </div>
+        @if($m->files && $m->files->count())
+            <ul class="mt-2 space-y-1">
+                @foreach($m->files as $f)
+                    <li>
+                        @php
+                            // Manually construct the Cloudflare R2 URL
+                            $fileUrl = env('CLOUDFLARE_R2_URL') . '/' . $f->pdf_path;
+                        @endphp
+                        <a href="{{ $fileUrl }}" target="_blank"
+                           class="text-xs text-blue-600 dark:text-blue-400 hover:underline break-words">
+                            📄 {{ $f->original_name ?? basename($f->pdf_path ?? 'file.pdf') }}
+                        </a>
+                    </li>
                 @endforeach
+            </ul>
+        @else
+            <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Belum ada file PDF.</p>
+        @endif
+    </div>
+@endforeach
+
               </div>
             @else
               <p class="text-xs text-slate-500 dark:text-slate-400">Belum ada materi pada CLO ini.</p>

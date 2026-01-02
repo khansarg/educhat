@@ -17,7 +17,7 @@
     </style>
 </head>
 
-<body class="bg-[#F5F7FA] min-h-screen flex flex-col">
+<body class="bg-[#F5F9FD] min-h-screen flex flex-col">
 
     {{-- TOP BAR --}}
     <header class="w-full py-4 bg-white shadow-sm flex justify-center">

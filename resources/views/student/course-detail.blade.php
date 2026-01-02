@@ -1,5 +1,5 @@
 {{-- resources/views/student/course-detail.blade.php --}}
-@extends('student.layout')
+@extends('layouts.student')
 
 @section('title', $course->name . ' - EduChat')
 
@@ -12,7 +12,10 @@
 @endsection
 
 @section('content')
-<div class="max-w-5xl mx-auto bg-white dark:bg-slate-900 rounded-[28px] shadow-[0_20px_50px_rgba(15,23,42,0.08)] p-10">
+<div class="flex-1 min-h-0 overflow-y-auto px-6 py-6">
+  <div class="max-w-5xl mx-auto bg-white dark:bg-slate-900 rounded-[28px]
+              shadow-[0_20px_50px_rgba(15,23,42,0.08)] p-10">
+
 
     <h1 class="text-2xl font-semibold flex items-center gap-2 mb-6 text-slate-900 dark:text-slate-100">
         <span class="text-[#B8352E]">&lt;/&gt;</span>
@@ -67,11 +70,13 @@
 @else
   <div class="shrink-0 flex flex-col items-end gap-1">
     @foreach($m->files as $f)
-      @php
-        $url = Storage::url($f->pdf_path); // This should generate the correct link
+     @php
+    // Manually construct the URL for Cloudflare R2
+    $url = env('CLOUDFLARE_R2_URL') . '/' . $f->pdf_path;  // Build the URL
 
-        $label = $f->name ?? 'PDF';
-      @endphp
+    $label = $f->name ?? 'PDF';  // Fallback to 'PDF' if no name
+@endphp
+
       <a href="{{ $url }}" target="_blank"
          class="text-xs font-medium text-[#B8352E] hover:underline">
         {{ $label }}
@@ -94,5 +99,7 @@
        
     </div>
 
+</div>
+</div>
 </div>
 @endsection

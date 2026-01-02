@@ -1,11 +1,11 @@
 {{-- resources/views/layouts/student.blade.php --}}
 @extends('layouts.base')
 
-
 @section('body')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
-<div class="flex h-screen">
+<div class="flex h-screen bg-[#F5F9FD] dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+
 
     {{-- Sidebar ikon kiri --}}
     @include('student.partials.sidebar')
@@ -25,12 +25,13 @@
 
 
     {{-- Konten utama --}}
-    <main class="flex-1 overflow-y-auto px-10 py-10">
-        @yield('content')
-    </main>
+    <main class="flex-1 overflow-y-auto px-10 py-10 flex flex-col">
+    @yield('content')
+</main>
+
 
 </div>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
-@stack('scripts') 
+ 
 @endsection

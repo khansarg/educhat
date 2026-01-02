@@ -59,6 +59,17 @@ return [
             'throw' => false,
             'report' => false,
         ],
+        'cloudflare_r2' => [
+            'driver' => 's3',
+            'key' => env('CLOUDFLARE_R2_ACCESS_KEY'),
+            'secret' => env('CLOUDFLARE_R2_SECRET_KEY'),
+            'region' => 'auto', // bisa disesuaikan dengan region Anda
+            'bucket' => env('CLOUDFLARE_R2_BUCKET'),
+            'endpoint' => env('CLOUDFLARE_R2_ENDPOINT'),
+            'url' => env('CLOUDFLARE_R2_URL'),
+            'use_path_style_endpoint' => true, // Penting untuk Cloudflare R2
+        ],
+
 
     ],
 

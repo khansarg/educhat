@@ -1,4 +1,4 @@
-@extends('student.layout')
+@extends('layouts.student')
 
 @section('title', 'Dashboard - EduChat')
 
@@ -17,7 +17,7 @@
 
         <div class="w-[420px] max-w-full mb-8">
             <img
-                src="{{ asset('images/dashboard-empty.png') }}"
+                src="{{ asset('images/dashboard_background.png') }}"
                 alt="Ilustrasi tidak ada chat"
                 class="w-full h-auto object-contain select-none"
                 onerror="this.style.display='none';"
