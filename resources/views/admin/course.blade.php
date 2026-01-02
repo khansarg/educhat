@@ -67,13 +67,14 @@
     </div>
   </div>
 
+  {{-- CLO buttons --}}
   <div class="flex gap-3 mb-6 flex-wrap" id="cloButtons">
     @foreach($course->clos as $i => $clo)
       <button data-clo-id="{{ $clo->id }}"
               type="button"
               class="clo-btn px-6 py-2 rounded-full
                      {{ $i === 0
-                        ? 'bg-[#9D1535] text-white'
+                        ? 'bg-[#9D1535] text-white border border-[#9D1535] cursor-default'
                         : 'border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60' }}">
         {{ $clo->title ?? 'CLO '.($i+1) }}
       </button>
@@ -282,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   'files' => $m->files
                     ? $m->files->map(fn($f) => [
                         'id' => $f->id,
-                        'download_url' => env('CLOUDFLARE_R2_URL') . '/' . $f->pdf_path,
+                        'download_url' => rtrim(env('CLOUDFLARE_R2_URL',''), '/') . '/' . ltrim($f->pdf_path, '/'),
                         'pdf_path' => $f->pdf_path,
                       ])->values()
                     : [],
@@ -378,6 +379,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const cloButtonsWrap = document.getElementById('cloButtons');
   const cloSummaryEl = document.getElementById('cloSummary');
 
+  const ACTIVE_BTN =
+    "clo-btn px-6 py-2 rounded-full bg-[#9D1535] text-white border border-[#9D1535] cursor-default";
+  const INACTIVE_BTN =
+    "clo-btn px-6 py-2 rounded-full border border-slate-200 dark:border-slate-700 " +
+    "text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60";
+
   function renderMateriTable() {
     const tbody = document.getElementById('materiTableBody');
     if (!tbody) return;
@@ -395,6 +402,13 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    const escapeHtml = (s) => String(s ?? '')
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'","&#039;");
+
     tbody.innerHTML = materials.map(m => {
       const files = Array.isArray(m.files) ? m.files : [];
       const fileCount = files.length;
@@ -404,12 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ? `<a href="${firstUrl}" target="_blank" class="text-blue-600 hover:underline">${fileCount} file (lihat)</a>`
         : `<span class="text-slate-400">Belum ada file</span>`;
 
-      const titleEsc = String(m.title ?? '-')
-        .replaceAll('&','&amp;')
-        .replaceAll('<','&lt;')
-        .replaceAll('>','&gt;')
-        .replaceAll('"','&quot;')
-        .replaceAll("'","&#039;");
+      const titleEsc = escapeHtml(m.title ?? '-');
 
       return `
         <tr class="border-t border-slate-200 dark:border-slate-800">
@@ -439,16 +448,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function setActiveClo(cloId) {
     activeCloId = String(cloId);
 
-    document.querySelectorAll('.clo-btn').forEach(b => {
-      b.classList.remove('bg-[#9D1535]', 'text-white');
-      b.classList.add('border');
+    document.querySelectorAll(".clo-btn").forEach((b) => {
+      b.className = INACTIVE_BTN;
     });
 
     const activeBtn = document.querySelector(`.clo-btn[data-clo-id="${activeCloId}"]`);
-    if (activeBtn) {
-      activeBtn.classList.add('bg-[#9D1535]', 'text-white');
-      activeBtn.classList.remove('border');
-    }
+    if (activeBtn) activeBtn.className = ACTIVE_BTN;
 
     const cloData = clos.find(c => String(c.id) === activeCloId);
     if (cloSummaryEl) cloSummaryEl.innerText = cloData?.summary ?? '';
@@ -729,15 +734,12 @@ document.addEventListener('DOMContentLoaded', () => {
     cloButtonsWrap.innerHTML = clos.map((c, i) => {
       const active = String(c.id) === String(activeCloId);
       const label = c.title ?? ('CLO ' + (i + 1));
+      const cls = active ? ACTIVE_BTN : INACTIVE_BTN;
 
       return `
         <button data-clo-id="${c.id}"
                 type="button"
-                class="clo-btn px-6 py-2 rounded-full ${
-                  active
-                    ? 'bg-[#9D1535] text-white'
-                    : 'border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60'
-                }">
+                class="${cls}">
           ${label}
         </button>
       `;
